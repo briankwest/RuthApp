@@ -2,12 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { lettersAPI } from '../services/api';
 import RichTextEditor from '../components/RichTextEditor';
+import Toast from '../components/Toast';
 
 export default function LettersPage() {
   const [letters, setLetters] = useState([]);
   const [filteredLetters, setFilteredLetters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRepFilter, setSelectedRepFilter] = useState('all');
 
@@ -20,11 +22,19 @@ export default function LettersPage() {
   // PDF generation options modal
   const [showPdfOptionsModal, setShowPdfOptionsModal] = useState(false);
   const [pdfOptions, setPdfOptions] = useState({
+    action: 'download', // 'download' or 'print'
     letterId: null,
     recipientId: null,
     recipientName: '',
     include_email: false,
     include_phone: false
+  });
+
+  // Website prompt after copy
+  const [showWebsitePrompt, setShowWebsitePrompt] = useState(false);
+  const [websitePromptData, setWebsitePromptData] = useState({
+    recipientName: '',
+    website: ''
   });
 
   useEffect(() => {
@@ -86,6 +96,7 @@ export default function LettersPage() {
   const handleDownloadPDF = (letterId, recipientId, recipientName) => {
     // Show modal to collect PDF options
     setPdfOptions({
+      action: 'download',
       letterId,
       recipientId,
       recipientName,
@@ -97,7 +108,7 @@ export default function LettersPage() {
 
   const confirmGeneratePDF = async () => {
     try {
-      const { letterId, recipientId, recipientName, include_email, include_phone } = pdfOptions;
+      const { action, letterId, recipientId, recipientName, include_email, include_phone } = pdfOptions;
 
       const response = await lettersAPI.generatePDF(letterId, recipientId, {
         include_email,
@@ -109,20 +120,42 @@ export default function LettersPage() {
       const filename = response.data.filename;
 
       // Create download URL (uploads are served at /uploads)
-      const downloadUrl = `/${pdfPath}`;
+      // Add timestamp to prevent caching
+      const downloadUrl = `/${pdfPath}?t=${Date.now()}`;
 
-      // Create a temporary link element and trigger download
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename || `letter-${recipientName.replace(/\s+/g, '-')}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (action === 'print') {
+        // Open PDF in new window and trigger print dialog
+        const printWindow = window.open(downloadUrl, '_blank');
+
+        if (printWindow) {
+          // Wait for PDF to load, then trigger print dialog
+          printWindow.onload = () => {
+            setTimeout(() => {
+              printWindow.print();
+            }, 500);
+          };
+        } else {
+          setError('Please allow pop-ups to print letters');
+          setTimeout(() => setError(''), 3000);
+        }
+      } else {
+        // Download action
+        // Create a temporary link element and trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename || `letter-${recipientName.replace(/\s+/g, '-')}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
 
       // Close modal
       setShowPdfOptionsModal(false);
     } catch (err) {
-      alert(`Failed to download PDF for ${pdfOptions.recipientName}: ` + (err.response?.data?.detail || err.message));
+      const actionText = pdfOptions.action === 'print' ? 'print' : 'download';
+      setError(`Failed to ${actionText} PDF for ${pdfOptions.recipientName}: ${err.response?.data?.detail || err.message}`);
+      setTimeout(() => setError(''), 3000);
+      setShowPdfOptionsModal(false);
     }
   };
 
@@ -182,6 +215,52 @@ export default function LettersPage() {
     }
   };
 
+  const handleCopyLetter = async (recipient) => {
+    if (!recipient.content || !recipient.content.trim()) {
+      setError('No content to copy');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(recipient.content);
+      setSuccess(`Letter for ${recipient.name} copied to clipboard!`);
+      setTimeout(() => setSuccess(''), 3000);
+
+      // If recipient has a website, offer to open it
+      if (recipient.website && recipient.website.trim()) {
+        setWebsitePromptData({
+          recipientName: recipient.name,
+          website: recipient.website
+        });
+        setShowWebsitePrompt(true);
+      }
+    } catch (err) {
+      setError('Failed to copy to clipboard');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
+  const openRepWebsite = () => {
+    if (websitePromptData.website) {
+      window.open(websitePromptData.website, '_blank');
+    }
+    setShowWebsitePrompt(false);
+  };
+
+  const handlePrintLetter = (letterId, recipientId, recipientName) => {
+    // Show modal to collect PDF options for printing
+    setPdfOptions({
+      action: 'print',
+      letterId,
+      recipientId,
+      recipientName,
+      include_email: false,
+      include_phone: false
+    });
+    setShowPdfOptionsModal(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -192,6 +271,9 @@ export default function LettersPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      {success && <Toast message={success} type="success" onClose={() => setSuccess('')} />}
+      {error && <Toast message={error} type="error" onClose={() => setError('')} />}
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">My Letters</h1>
@@ -380,13 +462,25 @@ export default function LettersPage() {
                                 onClick={() => startEditingRecipient(letter.id, recipient)}
                                 className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
                               >
-                                Edit
+                                📝 Edit
+                              </button>
+                              <button
+                                onClick={() => handleCopyLetter(recipient)}
+                                className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+                              >
+                                📋 Copy
+                              </button>
+                              <button
+                                onClick={() => handlePrintLetter(letter.id, recipient.id, recipient.name)}
+                                className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+                              >
+                                🖨️ Print
                               </button>
                               <button
                                 onClick={() => handleDownloadPDF(letter.id, recipient.id, recipient.name)}
                                 className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
                               >
-                                Download PDF
+                                📄 PDF
                               </button>
                             </div>
                           </div>
@@ -492,6 +586,37 @@ export default function LettersPage() {
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 Generate PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Website Prompt Modal */}
+      {showWebsitePrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Letter Copied!
+            </h3>
+            <p className="text-gray-700 mb-6">
+              Your letter for <strong>{websitePromptData.recipientName}</strong> has been copied to your clipboard.
+            </p>
+            <p className="text-gray-600 mb-6">
+              Would you like to open {websitePromptData.recipientName}'s website to paste it into their contact form?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowWebsitePrompt(false)}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                No Thanks
+              </button>
+              <button
+                onClick={openRepWebsite}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Open Website
               </button>
             </div>
           </div>

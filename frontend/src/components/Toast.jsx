@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function Toast({ message, type = 'success', onClose, duration = 3000 }) {
   useEffect(() => {
@@ -12,8 +13,8 @@ export default function Toast({ message, type = 'success', onClose, duration = 3
 
   const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
 
-  return (
-    <div className="fixed top-4 right-4 z-50 animate-slide-in">
+  const toastContent = (
+    <div className="fixed top-4 right-4 z-50 animate-slide-in pointer-events-auto">
       <div className={`${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] max-w-md`}>
         {type === 'success' ? (
           <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -36,4 +37,6 @@ export default function Toast({ message, type = 'success', onClose, duration = 3
       </div>
     </div>
   );
+
+  return createPortal(toastContent, document.body);
 }

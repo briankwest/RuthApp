@@ -13,6 +13,8 @@ import NewLetterPage from './pages/NewLetterPage';
 import LettersPage from './pages/LettersPage';
 import LetterDetailPage from './pages/LetterDetailPage';
 import DeliveryPage from './pages/DeliveryPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 // Components
 import PrivateRoute from './components/PrivateRoute';
@@ -31,6 +33,8 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
 
         {/* Protected Routes */}
         <Route

@@ -148,6 +148,9 @@ class Letter(Base):
     ai_prompt_used = Column(Text, nullable=True)  # Track the actual prompt sent to AI
     ai_analysis = Column(Text, nullable=True)  # AI's analysis of the articles
 
+    # Full context data for AI-assisted edits
+    context_data = Column(JSON, nullable=True)  # Complete context including stories, stats, arguments used
+
     # Base letter content (template)
     base_content = Column(Text, nullable=False)
 

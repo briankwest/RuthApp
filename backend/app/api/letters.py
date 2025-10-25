@@ -1165,6 +1165,50 @@ async def generate_letter(
         # Detect category
         category = await detect_topic_category(articles, base_content, drafter.client)
 
+        # Build comprehensive context data for future AI-assisted edits
+        context_data = {
+            # Full article data including content
+            'articles': [
+                {
+                    'url': a['url'],
+                    'title': a['title'],
+                    'content': a['text'][:5000],  # First 5000 chars
+                    'summary': a.get('summary', ''),
+                    'source': a.get('source', ''),
+                    'authors': a.get('authors', 'Unknown'),
+                    'publish_date': a.get('publish_date', 'Unknown')
+                }
+                for a in articles
+            ] if articles else [],
+
+            # Writing profile snapshot at time of generation
+            'writing_profile_snapshot': {
+                'name': writing_profile.name if writing_profile else None,
+                'description': writing_profile.description if writing_profile else None,
+                'preferred_tone': writing_profile.preferred_tone if writing_profile else None,
+                'preferred_length': writing_profile.preferred_length if writing_profile else None,
+                'political_leaning': writing_profile.political_leaning if writing_profile else None,
+                'core_values': writing_profile.core_values if writing_profile else [],
+                'issue_positions': writing_profile.issue_positions if writing_profile else {},
+                'argumentative_frameworks': writing_profile.argumentative_frameworks if writing_profile else {},
+                'representative_engagement': writing_profile.representative_engagement if writing_profile else {},
+                'include_personal_stories': writing_profile.include_personal_stories if writing_profile else False,
+                'include_data_statistics': writing_profile.include_data_statistics if writing_profile else False,
+                'include_emotional_appeals': writing_profile.include_emotional_appeals if writing_profile else False,
+                'include_constitutional_arguments': writing_profile.include_constitutional_arguments if writing_profile else False
+            } if writing_profile else None,
+
+            # Generation parameters
+            'generation_params': {
+                'tone': request.tone,
+                'topic': request.topic,
+                'focus': request.focus or "",
+                'custom_context': request.custom_context or "",
+                'same_letter_for_all': request.same_letter_for_all,
+                'ai_model': drafter.model
+            }
+        }
+
         # Create letter record
         letter = Letter(
             id=uuid.uuid4(),
@@ -1177,7 +1221,8 @@ async def generate_letter(
             additional_context=request.custom_context or "",
             news_articles=[{'url': a['url'], 'title': a['title']} for a in articles] if articles else [],
             ai_model_used=drafter.model,
-            ai_analysis=await drafter.analyze_articles(articles) if articles else {},
+            ai_analysis=await drafter.analyze_articles(articles) if articles else "",
+            context_data=context_data,
             base_content=base_content,
             category=category,
             reference_id=f"LTR_{current_user.id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
@@ -1225,7 +1270,8 @@ async def generate_letter(
                     'street_2': rep.address.get('street_2', ''),
                     'city': rep.address.get('city', ''),
                     'state': rep.address.get('state', ''),
-                    'zip': rep.address.get('zip', '')
+                    'zip': rep.address.get('zip', ''),
+                    'website': rep.website or ''
                 },
                 personalized_subject=personalized_subject,
                 personalized_content=personalized_content,
@@ -1549,7 +1595,8 @@ async def list_letters(
                         'title': recipient.recipient_title,
                         'office_type': recipient.recipient_office_type,
                         'subject': recipient.personalized_subject or letter.subject,
-                        'content': recipient.personalized_content
+                        'content': recipient.personalized_content,
+                        'website': recipient.recipient_address.get('website', '') if recipient.recipient_address else ''
                     }
                     for recipient in recipients
                 ],

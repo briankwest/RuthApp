@@ -110,6 +110,28 @@ export default function LoginPage() {
               Register
             </Link>
           </p>
+
+          {/* Version and Policy Links */}
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <div className="flex flex-col items-center gap-2 text-xs text-gray-500">
+              <div>Ruth v1.0.0</div>
+              <div className="flex gap-4">
+                <Link
+                  to="/terms"
+                  className="hover:text-ruth-blue transition-colors"
+                >
+                  Terms of Service
+                </Link>
+                <Link
+                  to="/privacy"
+                  className="hover:text-ruth-blue transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </div>
+              <div>© 2025 Brian West</div>
+            </div>
+          </div>
         </div>
 
         {/* Tagline */}

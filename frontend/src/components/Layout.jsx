@@ -1,5 +1,6 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
+import Footer from './Footer';
 import {
   HomeIcon,
   UsersIcon,
@@ -32,7 +33,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,9 +59,9 @@ export default function Layout() {
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex flex-1">
         {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-sm min-h-[calc(100vh-4rem)]">
+        <aside className="w-64 bg-white shadow-sm">
           <nav className="space-y-2">
             {/* Logo */}
             <div className="flex justify-center -mt-[35px] pb-6 border-b border-gray-200">
@@ -107,6 +108,9 @@ export default function Layout() {
           </div>
         </main>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
