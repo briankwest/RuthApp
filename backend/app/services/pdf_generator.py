@@ -384,6 +384,12 @@ class LetterPDFBuilder:
         y_pos = self.page_height - (0.5 * inch)
         formatted_date = self._format_date()
 
+        # Left content
+        if header_config.left:
+            left_text = header_config.left.format(page=self.page_count, formatted_date=formatted_date)
+            left_x = self.positioning.margins.left * inch
+            self.canvas.drawString(left_x, y_pos, left_text)
+
         # Center content with page number
         if header_config.center:
             center_text = header_config.center.format(page=self.page_count, formatted_date=formatted_date)
@@ -700,6 +706,17 @@ class PDFService:
 
             # Create PDF builder
             # Note: Organization is not passed as it's not displayed in formal letters
+
+            # Configure header to show recipient name and date on subsequent pages only
+            header_config = Header(
+                page_1=HeaderContent(enabled=False),
+                subsequent=HeaderContent(
+                    enabled=True,
+                    left=letter_recipient.recipient_name,
+                    right="{formatted_date}"
+                )
+            )
+
             builder = LetterPDFBuilder(
                 sender_name=sender_name,
                 sender_street_1=sender_street_1,
@@ -721,7 +738,8 @@ class PDFService:
                 subject=f"RE: {letter_recipient.personalized_subject or 'Important Matter'}",
                 salutation=content_parts['salutation'],
                 body_paragraphs=content_parts['body'],
-                closing=content_parts['closing']
+                closing=content_parts['closing'],
+                header=header_config
             )
 
             # Generate PDF
