@@ -1,0 +1,206 @@
+# Production overrides for Docker Compose
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  # PostgreSQL with production settings
+  postgres:
+    restart: always
+
+  # Redis with production settings
+  redis:
+    restart: always
+    command: redis-server --appendonly yes
+
+  # Backend with production optimizations
+  backend:
+    restart: always
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - DEBUG=False
+
+  # Celery Worker with production settings
+  celery_worker:
+    restart: always
+    command: celery -A app.tasks worker --loglevel=warning --concurrency=4
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - DEBUG=False
+
+  # Frontend with production build (nginx serving static files)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ruth_frontend_prod
+    restart: always
+    environment:
+      - VITE_API_URL=https://ruthapp.us
+    networks:
+      - ruth_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # Nginx reverse proxy with SSL (Let's Encrypt)
+  nginx:
+    image: nginx:alpine
+    container_name: ruth_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # SSL-enabled production config
+      - ./docker/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./uploads:/app/uploads:ro
+      - certbot-webroot:/var/www/certbot:rw
+      - certbot-certs:/etc/letsencrypt:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - ruth_network
+
+  # Certbot for Let's Encrypt SSL certificates and auto-renewal
+  certbot:
+    image: certbot/certbot:latest
+    container_name: ruth_certbot
+    restart: unless-stopped
+    volumes:
+      - certbot-webroot:/var/www/certbot:rw
+      - certbot-certs:/etc/letsencrypt:rw
+      - ./docker/scripts/renew-certs.sh:/renew-certs.sh:ro
+    environment:
+      - DOMAIN=ruthapp.us
+    entrypoint: "/bin/sh"
+    command:
+      - -c
+      - |
+        while :; do
+          echo 'Waiting 12 hours for next renewal check...';
+          sleep 43200;
+          /renew-certs.sh;
+        done
+    networks:
+      - ruth_network
+
+  # Monitoring - Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - ruth_network
+    profiles:
+      - monitoring
+
+  # Monitoring - Grafana (optional)
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=redis-datasource
+    ports:
+      - "3001:3000"
+    networks:
+      - ruth_network
+    profiles:
+      - monitoring
+
+  # Log aggregation - Loki (optional)
+  loki:
+    image: grafana/loki:latest
+    restart: always
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./docker/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - ruth_network
+    profiles:
+      - monitoring
+
+  # Log shipping - Promtail (optional)
+  promtail:
+    image: grafana/promtail:latest
+    restart: always
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./docker/promtail-config.yml:/etc/promtail/config.yml:ro
+    networks:
+      - ruth_network
+    profiles:
+      - monitoring
+
+  # Backup service (optional)
+  backup:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=ruth_db
+      - POSTGRES_USER=ruth_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-ruth_password}
+      - BACKUP_DIR=/backups
+      - S3_BUCKET=${BACKUP_S3_BUCKET:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+    volumes:
+      - ./backups:/backups
+      - ./docker/scripts/backup.sh:/backup.sh:ro
+    command: |
+      sh -c 'while true; do
+        /backup.sh
+        sleep 86400
+      done'
+    networks:
+      - ruth_network
+    profiles:
+      - backup
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+  certbot-webroot:
+    driver: local
+  certbot-certs:
+    driver: local
+
+networks:
+  ruth_network:
+    driver: bridge

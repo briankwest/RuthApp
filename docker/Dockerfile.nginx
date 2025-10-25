@@ -1,0 +1,22 @@
+FROM nginx:alpine
+
+# Install openssl for certificate checking
+RUN apk add --no-cache openssl
+
+# Copy both nginx configurations (build context is project root)
+COPY ./docker/nginx.prod.conf /etc/nginx/nginx.conf.prod
+COPY ./docker/nginx.init.conf /etc/nginx/nginx.conf.init
+
+# Copy entrypoint script
+COPY ./docker/scripts/nginx-entrypoint.sh /docker-entrypoint.d/00-ssl-setup.sh
+RUN chmod +x /docker-entrypoint.d/00-ssl-setup.sh
+
+# Create certbot directories
+RUN mkdir -p /var/www/certbot /etc/letsencrypt
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
+
+# Use custom entrypoint
+ENTRYPOINT ["/docker-entrypoint.d/00-ssl-setup.sh"]
