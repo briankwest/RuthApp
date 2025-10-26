@@ -7,7 +7,9 @@ function RepresentativeCard({ rep, onSave }) {
   const [saving, setSaving] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     setSaving(true);
     try {
       await onSave(rep);
@@ -57,6 +59,7 @@ function RepresentativeCard({ rep, onSave }) {
               )}
             </div>
             <button
+              type="button"
               onClick={handleSave}
               disabled={saving}
               className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 whitespace-nowrap flex-shrink-0"
@@ -423,12 +426,20 @@ export default function RepresentativesPage() {
 
 
   const handleSaveRepresentative = async (rep) => {
+    // Save scroll position before reload
+    const scrollPosition = window.scrollY;
+
     try {
       const response = await repsAPI.saveRepresentative(rep);
       setSuccess(response.data.message);
       setTimeout(() => setSuccess(''), 3000);
       // Reload saved reps to update the list
-      loadSavedReps();
+      await loadSavedReps();
+
+      // Restore scroll position after reload
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPosition);
+      });
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to save representative');
       setTimeout(() => setError(''), 3000);
