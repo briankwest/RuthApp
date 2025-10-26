@@ -30,7 +30,7 @@ function RepresentativeCard({ rep, onSave }) {
   );
 
   return (
-    <div className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+    <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow bg-white dark:bg-gray-800">
       <div className="flex flex-wrap items-start gap-4">
         {/* Photo */}
         {rep.photo_url && !imageError ? (
@@ -48,10 +48,10 @@ function RepresentativeCard({ rep, onSave }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">{rep.name}</h3>
-              <p className="text-sm text-gray-600">{rep.title}</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{rep.name}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{rep.title}</p>
               {rep.party && (
-                <span className="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-700">
+                <span className="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                   {rep.party}
                 </span>
               )}
@@ -75,7 +75,7 @@ function RepresentativeCard({ rep, onSave }) {
                 <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <a href={`tel:${rep.contact.phone}`} className="text-gray-700 hover:text-blue-600">{rep.contact.phone}</a>
+                <a href={`tel:${rep.contact.phone}`} className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">{rep.contact.phone}</a>
               </div>
             )}
             {rep.contact?.email && (
@@ -83,7 +83,7 @@ function RepresentativeCard({ rep, onSave }) {
                 <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <a href={`mailto:${rep.contact.email}`} className="text-blue-600 hover:text-blue-700 truncate">
+                <a href={`mailto:${rep.contact.email}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 truncate">
                   {rep.contact.email}
                 </a>
               </div>
@@ -97,7 +97,7 @@ function RepresentativeCard({ rep, onSave }) {
                   href={rep.contact.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 truncate"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 truncate"
                 >
                   Visit Website
                 </a>
@@ -152,17 +152,17 @@ function RepresentativeCard({ rep, onSave }) {
 
           {/* Offices */}
           {rep.offices && rep.offices.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Offices</h4>
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Offices</h4>
               <div className="space-y-2">
                 {rep.offices.map((office, idx) => (
-                  <div key={idx} className="text-sm text-gray-600 break-words">
+                  <div key={idx} className="text-sm text-gray-600 dark:text-gray-400 break-words">
                     <p className="font-medium">{office.name}</p>
                     <p className="break-words">{office.street_1}</p>
                     {office.city && office.state && (
                       <p>{office.city}, {office.state} {office.zip}</p>
                     )}
-                    {office.phone && <p>Phone: <a href={`tel:${office.phone}`} className="hover:text-blue-600">{office.phone}</a></p>}
+                    {office.phone && <p>Phone: <a href={`tel:${office.phone}`} className="hover:text-blue-600 dark:hover:text-blue-400">{office.phone}</a></p>}
                   </div>
                 ))}
               </div>
@@ -191,7 +191,7 @@ function SavedRepCard({ rep, confirmDeleteRep, onRemove, onConfirmRemove, onCanc
   );
 
   return (
-    <div className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+    <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow bg-white dark:bg-gray-800">
       <div className="flex flex-wrap items-start gap-4">
         {/* Photo or placeholder */}
         {rep.photo_url && !imageError ? (
@@ -209,15 +209,15 @@ function SavedRepCard({ rep, confirmDeleteRep, onRemove, onConfirmRemove, onCanc
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">{rep.name}</h3>
-              <p className="text-sm text-gray-600">{rep.title}</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{rep.name}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{rep.title}</p>
               {rep.party && (
-                <span className="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-700">
+                <span className="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                   {rep.party}
                 </span>
               )}
               {rep.district && (
-                <p className="text-sm text-gray-600 mt-1">District {rep.district}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">District {rep.district}</p>
               )}
             </div>
             {confirmDeleteRep === rep.id ? (
@@ -230,7 +230,7 @@ function SavedRepCard({ rep, confirmDeleteRep, onRemove, onConfirmRemove, onCanc
                 </button>
                 <button
                   onClick={onCancelRemove}
-                  className="px-3 py-1 bg-gray-200 text-gray-700 text-sm font-medium rounded hover:bg-gray-300"
+                  className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded hover:bg-gray-300 dark:hover:bg-gray-600"
                 >
                   Cancel
                 </button>
@@ -255,7 +255,7 @@ function SavedRepCard({ rep, confirmDeleteRep, onRemove, onConfirmRemove, onCanc
                 <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                <a href={`tel:${rep.contact.phone}`} className="text-gray-700 hover:text-blue-600">{rep.contact.phone}</a>
+                <a href={`tel:${rep.contact.phone}`} className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">{rep.contact.phone}</a>
               </div>
             )}
             {rep.contact?.email && (
@@ -263,7 +263,7 @@ function SavedRepCard({ rep, confirmDeleteRep, onRemove, onConfirmRemove, onCanc
                 <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                <a href={`mailto:${rep.contact.email}`} className="text-blue-600 hover:text-blue-700 truncate">
+                <a href={`mailto:${rep.contact.email}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 truncate">
                   {rep.contact.email}
                 </a>
               </div>
@@ -277,7 +277,7 @@ function SavedRepCard({ rep, confirmDeleteRep, onRemove, onConfirmRemove, onCanc
                   href={rep.contact.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 truncate"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 truncate"
                 >
                   Visit Website
                 </a>
@@ -287,17 +287,17 @@ function SavedRepCard({ rep, confirmDeleteRep, onRemove, onConfirmRemove, onCanc
 
           {/* Offices */}
           {rep.offices && rep.offices.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Offices</h4>
+            <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Offices</h4>
               <div className="space-y-2">
                 {rep.offices.map((office, idx) => (
-                  <div key={idx} className="text-sm text-gray-600 break-words">
+                  <div key={idx} className="text-sm text-gray-600 dark:text-gray-400 break-words">
                     <p className="font-medium">{office.name}</p>
                     <p className="break-words">{office.street_1}</p>
                     {office.city && office.state && (
                       <p>{office.city}, {office.state} {office.zip}</p>
                     )}
-                    {office.phone && <p>Phone: <a href={`tel:${office.phone}`} className="hover:text-blue-600">{office.phone}</a></p>}
+                    {office.phone && <p>Phone: <a href={`tel:${office.phone}`} className="hover:text-blue-600 dark:hover:text-blue-400">{office.phone}</a></p>}
                   </div>
                 ))}
               </div>
@@ -453,22 +453,22 @@ export default function RepresentativesPage() {
       {error && <Toast message={error} type="error" onClose={() => setError('')} />}
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Representatives</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Representatives</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
           {savedReps.length > 0 ? 'Your saved representatives and tools to find more' : 'Find your state and federal representatives'}
         </p>
       </div>
 
       {/* Saved Representatives Section - Show first if they exist */}
       {!loadingSavedReps && savedReps.length > 0 && (
-        <div className="bg-white shadow-sm rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">My Saved Representatives</h2>
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">My Saved Representatives</h2>
 
           <div className="space-y-6">
             {/* Federal Representatives */}
             {federalReps.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Federal Representatives</h3>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Federal Representatives</h3>
                 <div className="space-y-4">
                   {federalReps.map((rep) => (
                     <SavedRepCard
@@ -487,7 +487,7 @@ export default function RepresentativesPage() {
             {/* State Representatives */}
             {stateReps.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">State Representatives</h3>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">State Representatives</h3>
                 <div className="space-y-4">
                   {stateReps.map((rep) => (
                     <SavedRepCard
@@ -507,17 +507,17 @@ export default function RepresentativesPage() {
       )}
 
       {/* Find Representatives Form */}
-      <div className="bg-white shadow-sm rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           {savedReps.length > 0 ? 'Find More Representatives' : 'Find Your Representatives'}
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Enter your address to find your state and federal representatives
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="street" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Street Address
             </label>
             <input
@@ -526,7 +526,7 @@ export default function RepresentativesPage() {
               type="text"
               value={address.street}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               placeholder="123 Main St"
               required
             />
@@ -534,7 +534,7 @@ export default function RepresentativesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 City
               </label>
               <input
@@ -543,14 +543,14 @@ export default function RepresentativesPage() {
                 type="text"
                 value={address.city}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="McAlester"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="state" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 State
               </label>
               <input
@@ -559,7 +559,7 @@ export default function RepresentativesPage() {
                 type="text"
                 value={address.state}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 maxLength={2}
                 placeholder="OK"
                 required
@@ -568,7 +568,7 @@ export default function RepresentativesPage() {
           </div>
 
           <div>
-            <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               ZIP Code
             </label>
             <input
@@ -577,7 +577,7 @@ export default function RepresentativesPage() {
               type="text"
               value={address.zip_code}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               maxLength={10}
               placeholder="74501"
               required
@@ -590,9 +590,9 @@ export default function RepresentativesPage() {
               type="checkbox"
               checked={saveAddress}
               onChange={(e) => setSaveAddress(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900"
             />
-            <label htmlFor="save-address" className="ml-2 block text-sm text-gray-700">
+            <label htmlFor="save-address" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
               Save this address to my profile
             </label>
           </div>
@@ -614,14 +614,14 @@ export default function RepresentativesPage() {
       </div>
 
       {lookupResult && (
-        <div className="bg-white shadow-sm rounded-lg p-6">
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Your Representatives</h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Your Representatives</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {lookupResult.address}
             </p>
             {lookupResult.cached && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                 Cached result from {new Date(lookupResult.cached_at).toLocaleDateString()}
               </p>
             )}
@@ -631,7 +631,7 @@ export default function RepresentativesPage() {
           {(lookupResult.representatives.federal?.senators?.length > 0 ||
             lookupResult.representatives.federal?.representatives?.length > 0) && (
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                 Federal Representatives
               </h3>
               <div className="space-y-4">
@@ -657,7 +657,7 @@ export default function RepresentativesPage() {
           {(lookupResult.representatives.state?.senators?.length > 0 ||
             lookupResult.representatives.state?.representatives?.length > 0) && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                 State Representatives
               </h3>
               <div className="space-y-4">

@@ -34,8 +34,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Welcome to Ruth</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome to Ruth</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
           Your civic empowerment platform for writing to representatives
         </p>
       </div>

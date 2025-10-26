@@ -28,26 +28,26 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
       case 'critical': return 'bg-red-100 text-red-800 border-red-200';
       case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'medium': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:border-gray-700';
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg max-w-4xl w-full my-8 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full my-8 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{profile.name}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{profile.name}</h2>
             {profile.is_default && (
-              <span className="inline-block mt-1 px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded">
+              <span className="inline-block mt-1 px-2 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 rounded">
                 Default Profile
               </span>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-2xl font-bold"
           >
             ×
           </button>
@@ -57,33 +57,33 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
         <div className="px-6 py-6 space-y-6">
           {/* Basic Information */}
           <section>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               📋 Basic Information
             </h3>
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
               {profile.description && (
                 <div>
-                  <span className="font-medium text-gray-700">Description:</span>
-                  <p className="text-gray-600 mt-1">{profile.description}</p>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">Description:</span>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">{profile.description}</p>
                 </div>
               )}
               {profile.political_leaning && (
                 <div>
-                  <span className="font-medium text-gray-700">Political Perspective:</span>
-                  <span className="ml-2 capitalize text-gray-600">{profile.political_leaning}</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">Political Perspective:</span>
+                  <span className="ml-2 capitalize text-gray-600 dark:text-gray-400">{profile.political_leaning}</span>
                 </div>
               )}
               <div>
-                <span className="font-medium text-gray-700">Tone:</span>
-                <span className="ml-2 capitalize text-gray-600">{profile.preferred_tone}</span>
+                <span className="font-medium text-gray-700 dark:text-gray-300">Tone:</span>
+                <span className="ml-2 capitalize text-gray-600 dark:text-gray-400">{profile.preferred_tone}</span>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Length Preference:</span>
-                <span className="ml-2 capitalize text-gray-600">{profile.preferred_length}</span>
+                <span className="font-medium text-gray-700 dark:text-gray-300">Length Preference:</span>
+                <span className="ml-2 capitalize text-gray-600 dark:text-gray-400">{profile.preferred_length}</span>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Vocabulary Level:</span>
-                <span className="ml-2 capitalize text-gray-600">{profile.vocabulary_level}</span>
+                <span className="font-medium text-gray-700 dark:text-gray-300">Vocabulary Level:</span>
+                <span className="ml-2 capitalize text-gray-600 dark:text-gray-400">{profile.vocabulary_level}</span>
               </div>
             </div>
           </section>
@@ -93,7 +93,7 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
             <section>
               <button
                 onClick={() => toggleSection('issues')}
-                className="w-full text-left text-lg font-semibold text-gray-900 mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
+                className="w-full text-left text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
               >
                 <span>🎯 Issue Positions ({Object.keys(profile.issue_positions).length})</span>
                 <span>{expandedSections.issues ? '▼' : '▶'}</span>
@@ -109,23 +109,23 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
 
                     return (
                       <div key={priorityLevel}>
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2 capitalize">
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 capitalize">
                           {priorityLevel} Priority:
                         </h4>
                         <div className="space-y-2">
                           {issuesAtLevel.map(([issueKey, issueData]) => (
-                            <div key={issueKey} className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-400">
+                            <div key={issueKey} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 border-l-4 border-blue-400">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1">
-                                  <h5 className="font-medium text-gray-900">{formatFieldName(issueKey)}</h5>
+                                  <h5 className="font-medium text-gray-900 dark:text-white">{formatFieldName(issueKey)}</h5>
                                   <div className="mt-1 flex items-center gap-2 text-sm">
-                                    <span className="text-gray-600">Position:</span>
-                                    <span className="font-medium text-gray-900 capitalize">
+                                    <span className="text-gray-600 dark:text-gray-400">Position:</span>
+                                    <span className="font-medium text-gray-900 dark:text-white capitalize">
                                       {issueData.position?.replace(/_/g, ' ')}
                                     </span>
                                   </div>
                                   {issueData.personal_connection && (
-                                    <p className="mt-2 text-sm text-gray-600 italic">
+                                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 italic">
                                       "{issueData.personal_connection}"
                                     </p>
                                   )}
@@ -148,11 +148,11 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
           {/* Abortion Position */}
           {profile.abortion_position && (
             <section>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                 🏥 Abortion Rights Position
               </h3>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <span className="text-gray-900 capitalize">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <span className="text-gray-900 dark:text-white capitalize">
                   {profile.abortion_position.replace(/_/g, ' ')}
                 </span>
               </div>
@@ -164,7 +164,7 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
             <section>
               <button
                 onClick={() => toggleSection('values')}
-                className="w-full text-left text-lg font-semibold text-gray-900 mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
+                className="w-full text-left text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
               >
                 <span>💎 Core Values ({profile.core_values.length})</span>
                 <span>{expandedSections.values ? '▼' : '▶'}</span>
@@ -186,33 +186,33 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
 
           {/* Content Preferences */}
           <section>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               📝 Content Preferences
             </h3>
-            <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex items-center gap-2">
                 <span className={`text-xl ${profile.include_personal_stories ? 'text-green-600' : 'text-gray-300'}`}>
                   {profile.include_personal_stories ? '✓' : '○'}
                 </span>
-                <span className="text-gray-700">Personal Stories</span>
+                <span className="text-gray-700 dark:text-gray-300">Personal Stories</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-xl ${profile.include_data_statistics ? 'text-green-600' : 'text-gray-300'}`}>
                   {profile.include_data_statistics ? '✓' : '○'}
                 </span>
-                <span className="text-gray-700">Data & Statistics</span>
+                <span className="text-gray-700 dark:text-gray-300">Data & Statistics</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-xl ${profile.include_emotional_appeals ? 'text-green-600' : 'text-gray-300'}`}>
                   {profile.include_emotional_appeals ? '✓' : '○'}
                 </span>
-                <span className="text-gray-700">Emotional Appeals</span>
+                <span className="text-gray-700 dark:text-gray-300">Emotional Appeals</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-xl ${profile.include_constitutional_arguments ? 'text-green-600' : 'text-gray-300'}`}>
                   {profile.include_constitutional_arguments ? '✓' : '○'}
                 </span>
-                <span className="text-gray-700">Constitutional Arguments</span>
+                <span className="text-gray-700 dark:text-gray-300">Constitutional Arguments</span>
               </div>
             </div>
           </section>
@@ -222,19 +222,19 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
             <section>
               <button
                 onClick={() => toggleSection('frameworks')}
-                className="w-full text-left text-lg font-semibold text-gray-900 mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
+                className="w-full text-left text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
               >
                 <span>🎯 Argumentative Frameworks</span>
                 <span>{expandedSections.frameworks ? '▼' : '▶'}</span>
               </button>
               {expandedSections.frameworks && (
-                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                   {Object.entries(profile.argumentative_frameworks).map(([framework, enabled]) => (
                     <div key={framework} className="flex items-center gap-2">
                       <span className={`text-xl ${enabled ? 'text-green-600' : 'text-gray-300'}`}>
                         {enabled ? '✓' : '○'}
                       </span>
-                      <span className="text-gray-700">{formatFieldName(framework)}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{formatFieldName(framework)}</span>
                     </div>
                   ))}
                 </div>
@@ -247,33 +247,33 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
             <section>
               <button
                 onClick={() => toggleSection('engagement')}
-                className="w-full text-left text-lg font-semibold text-gray-900 mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
+                className="w-full text-left text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
               >
                 <span>🤝 Engagement Strategy</span>
                 <span>{expandedSections.engagement ? '▼' : '▶'}</span>
               </button>
               {expandedSections.engagement && (
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3">
                   {profile.representative_engagement.aligned_approach && (
                     <div>
-                      <span className="font-medium text-gray-700">Aligned Representatives:</span>
-                      <span className="ml-2 capitalize text-gray-600">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Aligned Representatives:</span>
+                      <span className="ml-2 capitalize text-gray-600 dark:text-gray-400">
                         {profile.representative_engagement.aligned_approach.replace(/_/g, ' ')}
                       </span>
                     </div>
                   )}
                   {profile.representative_engagement.opposing_approach && (
                     <div>
-                      <span className="font-medium text-gray-700">Opposing Representatives:</span>
-                      <span className="ml-2 capitalize text-gray-600">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Opposing Representatives:</span>
+                      <span className="ml-2 capitalize text-gray-600 dark:text-gray-400">
                         {profile.representative_engagement.opposing_approach.replace(/_/g, ' ')}
                       </span>
                     </div>
                   )}
                   {profile.representative_engagement.bipartisan_framing && (
                     <div>
-                      <span className="font-medium text-gray-700">Bipartisan Framing:</span>
-                      <span className="ml-2 capitalize text-gray-600">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Bipartisan Framing:</span>
+                      <span className="ml-2 capitalize text-gray-600 dark:text-gray-400">
                         {profile.representative_engagement.bipartisan_framing.replace(/_/g, ' ')}
                       </span>
                     </div>
@@ -288,25 +288,25 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
             <section>
               <button
                 onClick={() => toggleSection('regional')}
-                className="w-full text-left text-lg font-semibold text-gray-900 mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
+                className="w-full text-left text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
               >
                 <span>📍 Regional Context</span>
                 <span>{expandedSections.regional ? '▼' : '▶'}</span>
               </button>
               {expandedSections.regional && (
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-3">
                   {profile.regional_context.community_type && (
                     <div>
-                      <span className="font-medium text-gray-700">Community Type:</span>
-                      <span className="ml-2 capitalize text-gray-600">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Community Type:</span>
+                      <span className="ml-2 capitalize text-gray-600 dark:text-gray-400">
                         {profile.regional_context.community_type}
                       </span>
                     </div>
                   )}
                   {profile.regional_context.state_concerns && (
                     <div>
-                      <span className="font-medium text-gray-700">State/Local Concerns:</span>
-                      <p className="text-gray-600 mt-1">{profile.regional_context.state_concerns}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">State/Local Concerns:</span>
+                      <p className="text-gray-600 dark:text-gray-400 mt-1">{profile.regional_context.state_concerns}</p>
                     </div>
                   )}
                 </div>
@@ -319,7 +319,7 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
             <section>
               <button
                 onClick={() => toggleSection('samples')}
-                className="w-full text-left text-lg font-semibold text-gray-900 mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
+                className="w-full text-left text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center justify-between gap-2 hover:text-blue-600"
               >
                 <span>✍️ Writing Samples ({profile.writing_samples.length})</span>
                 <span>{expandedSections.samples ? '▼' : '▶'}</span>
@@ -327,8 +327,8 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
               {expandedSections.samples && (
                 <div className="space-y-2">
                   {profile.writing_samples.map((sample, idx) => (
-                    <div key={idx} className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                    <div key={idx} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                         {sample.length > 300 ? sample.substring(0, 300) + '...' : sample}
                       </p>
                     </div>
@@ -339,7 +339,7 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
           )}
 
           {/* Metadata */}
-          <section className="text-xs text-gray-500 pt-4 border-t border-gray-200">
+          <section className="text-xs text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex gap-4">
               <span>Created: {new Date(profile.created_at).toLocaleDateString()}</span>
               <span>Updated: {new Date(profile.updated_at).toLocaleDateString()}</span>
@@ -351,10 +351,10 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-end gap-3">
+        <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Close
           </button>

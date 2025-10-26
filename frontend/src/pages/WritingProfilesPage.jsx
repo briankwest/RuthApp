@@ -85,7 +85,7 @@ export default function WritingProfilesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600">Loading writing profiles...</div>
+        <div className="text-gray-600 dark:text-gray-400">Loading writing profiles...</div>
       </div>
     );
   }
@@ -97,8 +97,8 @@ export default function WritingProfilesPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Writing Profiles</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Writing Profiles</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
             Create personalized writing styles for your advocacy letters
           </p>
         </div>
@@ -111,10 +111,10 @@ export default function WritingProfilesPage() {
       </div>
 
       {profiles.length === 0 ? (
-        <div className="bg-white shadow-sm rounded-lg p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-12 text-center">
           <div className="max-w-md mx-auto">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -126,10 +126,10 @@ export default function WritingProfilesPage() {
                 d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
               />
             </svg>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">
+            <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
               No writing profiles yet
             </h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Get started by creating your first writing profile. This will help personalize your letters to representatives.
             </p>
             <button
@@ -145,18 +145,18 @@ export default function WritingProfilesPage() {
           {profiles.map((profile) => (
             <div
               key={profile.id}
-              className="bg-white shadow-sm rounded-lg p-6 hover:shadow-md transition-shadow relative"
+              className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 hover:shadow-md transition-shadow relative"
             >
               {profile.is_default && (
-                <span className="absolute top-4 right-4 px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded">
+                <span className="absolute top-4 right-4 px-2 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 rounded">
                   Default
                 </span>
               )}
 
-              <h3 className="text-lg font-bold text-gray-900 pr-16">{profile.name}</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white pr-16">{profile.name}</h3>
 
               {profile.description && (
-                <p className="mt-2 text-sm text-gray-600 line-clamp-3">
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
                   {profile.description}
                 </p>
               )}
@@ -164,25 +164,25 @@ export default function WritingProfilesPage() {
               <div className="mt-4 space-y-2 text-sm">
                 {profile.political_leaning && (
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-700">Leaning:</span>
-                    <span className="capitalize text-gray-600">{profile.political_leaning}</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Leaning:</span>
+                    <span className="capitalize text-gray-600 dark:text-gray-400">{profile.political_leaning}</span>
                   </div>
                 )}
 
                 {profile.key_issues && profile.key_issues.length > 0 && (
                   <div>
-                    <span className="font-medium text-gray-700">Key Issues:</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Key Issues:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {profile.key_issues.slice(0, 3).map((issue, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded"
+                          className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
                         >
                           {issue}
                         </span>
                       ))}
                       {profile.key_issues.length > 3 && (
-                        <span className="px-2 py-1 text-xs text-gray-500">
+                        <span className="px-2 py-1 text-xs text-gray-500 dark:text-gray-500">
                           +{profile.key_issues.length - 3} more
                         </span>
                       )}
@@ -191,8 +191,8 @@ export default function WritingProfilesPage() {
                 )}
 
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-700">Tone:</span>
-                  <span className="capitalize text-gray-600">{profile.preferred_tone}</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">Tone:</span>
+                  <span className="capitalize text-gray-600 dark:text-gray-400">{profile.preferred_tone}</span>
                 </div>
 
                 {profile.last_used_at && (
@@ -205,7 +205,7 @@ export default function WritingProfilesPage() {
               <div className="mt-6 space-y-2">
                 <button
                   onClick={() => handleViewDetails(profile)}
-                  className="w-full px-3 py-2 text-sm border border-blue-300 text-blue-700 rounded-md hover:bg-blue-50 font-medium"
+                  className="w-full px-3 py-2 text-sm border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/30 font-medium"
                 >
                   View Details
                 </button>
@@ -213,14 +213,14 @@ export default function WritingProfilesPage() {
                   {!profile.is_default && (
                     <button
                       onClick={() => handleSetDefault(profile.id)}
-                      className="flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                      className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                       Set Default
                     </button>
                   )}
                   <button
                     onClick={() => handleDelete(profile.id)}
-                    className="flex-1 px-3 py-2 text-sm border border-red-300 text-red-700 rounded-md hover:bg-red-50"
+                    className="flex-1 px-3 py-2 text-sm border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30"
                   >
                     Delete
                   </button>

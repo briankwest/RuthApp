@@ -347,7 +347,7 @@ export default function LettersPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600">Loading letters...</div>
+        <div className="text-gray-600 dark:text-gray-400">Loading letters...</div>
       </div>
     );
   }
@@ -359,8 +359,8 @@ export default function LettersPage() {
 
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Letters</h1>
-          <p className="mt-2 text-gray-600">View and manage all your advocacy letters</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Letters</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">View and manage all your advocacy letters</p>
         </div>
         <button
           onClick={() => setShowWizard(true)}
@@ -378,15 +378,15 @@ export default function LettersPage() {
 
       {/* Status Toggle */}
       {letters.length > 0 && (
-        <div className="bg-white shadow-sm rounded-lg p-4">
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-4">
           <div className="flex items-center justify-center mb-6">
-            <div className="inline-flex items-center bg-gray-200 rounded-full p-1">
+            <div className="inline-flex items-center bg-gray-200 dark:bg-gray-700 rounded-full p-1">
               <button
                 onClick={() => setStatusFilter('draft')}
                 className={`px-6 py-2 rounded-full font-medium text-sm transition-all ${
                   statusFilter === 'draft'
                     ? 'bg-yellow-500 text-white shadow-md'
-                    : 'text-gray-700 hover:text-gray-900'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 Draft
@@ -396,7 +396,7 @@ export default function LettersPage() {
                 className={`px-6 py-2 rounded-full font-medium text-sm transition-all ${
                   statusFilter === 'finalized'
                     ? 'bg-green-500 text-white shadow-md'
-                    : 'text-gray-700 hover:text-gray-900'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 Sent
@@ -407,7 +407,7 @@ export default function LettersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Search letters
               </label>
               <input
@@ -415,19 +415,19 @@ export default function LettersPage() {
                 placeholder="Search by subject, category, or recipient..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             </div>
 
             {/* Filter by Representative */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Filter by representative
               </label>
               <select
                 value={selectedRepFilter}
                 onChange={(e) => setSelectedRepFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
               >
                 <option value="all">All representatives</option>
                 {representativeNames.map(name => (
@@ -438,14 +438,14 @@ export default function LettersPage() {
           </div>
 
           {/* Results count */}
-          <div className="mt-3 text-sm text-gray-600">
+          <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
             Showing {filteredLetters.length} of {letters.length} letters
           </div>
         </div>
       )}
 
       {letters.length === 0 ? (
-        <div className="bg-white shadow-sm rounded-lg p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-12 text-center">
           <div className="max-w-md mx-auto">
             <svg
               className="mx-auto h-12 w-12 text-gray-400"
@@ -463,7 +463,7 @@ export default function LettersPage() {
             <h3 className="mt-4 text-lg font-medium text-gray-900">
               No letters yet
             </h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Get started by writing your first advocacy letter to your representatives.
             </p>
             <button
@@ -475,10 +475,10 @@ export default function LettersPage() {
           </div>
         </div>
       ) : filteredLetters.length === 0 ? (
-        <div className="bg-white shadow-sm rounded-lg p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-12 text-center">
           <div className="max-w-md mx-auto">
-            <h3 className="text-lg font-medium text-gray-900">No matching letters found</h3>
-            <p className="mt-2 text-sm text-gray-600">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">No matching letters found</h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Try adjusting your search or filter criteria
             </p>
             <button
@@ -486,7 +486,7 @@ export default function LettersPage() {
                 setSearchTerm('');
                 setSelectedRepFilter('all');
               }}
-              className="mt-4 px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+              className="mt-4 px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               Clear filters
             </button>
@@ -497,13 +497,13 @@ export default function LettersPage() {
           {filteredLetters.map((letter) => (
             <div
               key={letter.id}
-              className="bg-white shadow-sm rounded-lg p-6 hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 hover:shadow-md transition-shadow"
             >
               {/* Header with Subject and Date */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900">{letter.subject}</h3>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{letter.subject}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Created: {new Date(letter.created_at).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -514,7 +514,7 @@ export default function LettersPage() {
                   {/* Status toggle */}
                   <div className="mt-3 flex items-center gap-4 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-700">Status:</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</span>
                       <button
                         onClick={() => handleToggleStatus(letter.id, letter.status)}
                         disabled={togglingStatus === letter.id}
@@ -532,13 +532,13 @@ export default function LettersPage() {
                         />
                       </button>
                       <span className={`text-sm font-medium ${
-                        letter.status === 'finalized' ? 'text-green-700' : 'text-yellow-700'
+                        letter.status === 'finalized' ? 'text-green-700 dark:text-green-400' : 'text-yellow-700 dark:text-yellow-400'
                       }`}>
                         {letter.status === 'finalized' ? 'Sent' : 'Draft'}
                       </span>
                     </div>
                     {letter.category && (
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded text-xs font-medium">
                         {letter.category}
                       </span>
                     )}
@@ -549,7 +549,7 @@ export default function LettersPage() {
                 <div className="flex gap-2 ml-4">
                   <button
                     onClick={() => handleDelete(letter.id)}
-                    className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded-md hover:bg-red-50"
+                    className="px-3 py-1.5 text-sm border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30"
                   >
                     Delete
                   </button>
@@ -558,26 +558,26 @@ export default function LettersPage() {
 
               {/* Recipients Section */}
               {letter.recipients && letter.recipients.length > 0 && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                     Recipients ({letter.recipients.length})
                   </h4>
                   <div className="space-y-2">
                     {letter.recipients.map((recipient) => {
                       const wordCount = recipient.content ? recipient.content.split(/\s+/).filter(w => w).length : 0;
                       return (
-                        <div key={recipient.id} className="p-3 bg-white rounded border border-gray-200">
+                        <div key={recipient.id} className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-600">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                             <div className="flex-1">
-                              <div className="font-medium text-gray-900">{recipient.name}</div>
-                              <div className="text-sm text-gray-600">{recipient.title}</div>
+                              <div className="font-medium text-gray-900 dark:text-white">{recipient.name}</div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">{recipient.title}</div>
                               {recipient.subject && (
-                                <div className="text-sm text-gray-700 mt-1 italic">
+                                <div className="text-sm text-gray-700 dark:text-gray-300 mt-1 italic">
                                   Subject: {recipient.subject}
                                 </div>
                               )}
                               {wordCount > 0 && (
-                                <div className="text-xs text-gray-500 mt-1">
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                   {wordCount} words
                                 </div>
                               )}
@@ -585,27 +585,27 @@ export default function LettersPage() {
                             <div className="grid grid-cols-2 sm:flex gap-2">
                               <button
                                 onClick={() => startEditingRecipient(letter.id, recipient)}
-                                className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+                                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
                               >
                                 📝 Edit
                               </button>
                               {recipient.email && (
                                 <button
                                   onClick={() => handleEmailLetter(recipient.email, recipient.name, recipient.subject || letter.subject, recipient.content || '')}
-                                  className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+                                  className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
                                 >
                                   ✉️ Email
                                 </button>
                               )}
                               <button
                                 onClick={() => handleCopyLetter(recipient)}
-                                className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+                                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
                               >
                                 📋 Copy
                               </button>
                               <button
                                 onClick={() => handlePrintLetter(letter.id, recipient.id, recipient.name)}
-                                className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+                                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
                               >
                                 🖨️ Print
                               </button>
@@ -631,16 +631,16 @@ export default function LettersPage() {
       {/* Edit Recipient Modal */}
       {showEditModal && editingRecipient && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               Edit Letter for {editingRecipient.name}
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
               {editingRecipient.title} • {editingRecipient.subject}
             </p>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Letter Content
               </label>
               <RichTextEditor
@@ -654,7 +654,7 @@ export default function LettersPage() {
               <button
                 onClick={cancelEditingRecipient}
                 disabled={saving}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
@@ -673,11 +673,11 @@ export default function LettersPage() {
       {/* PDF Options Modal */}
       {showPdfOptionsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               PDF Generation Options
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Generating PDF for: <span className="font-semibold">{pdfOptions.recipientName}</span>
             </p>
 
@@ -689,7 +689,7 @@ export default function LettersPage() {
                   onChange={(e) => setPdfOptions(prev => ({ ...prev, include_email: e.target.checked }))}
                   className="rounded"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   Include my email address in signature
                 </span>
               </label>
@@ -701,7 +701,7 @@ export default function LettersPage() {
                   onChange={(e) => setPdfOptions(prev => ({ ...prev, include_phone: e.target.checked }))}
                   className="rounded"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   Include my phone number in signature
                 </span>
               </label>
@@ -710,7 +710,7 @@ export default function LettersPage() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowPdfOptionsModal(false)}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
@@ -728,11 +728,11 @@ export default function LettersPage() {
       {/* Email Options Modal */}
       {showEmailOptionsModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Email Options
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Sending email to: <span className="font-semibold">{emailOptions.recipientName}</span>
             </p>
 
@@ -744,7 +744,7 @@ export default function LettersPage() {
                   onChange={(e) => setEmailOptions(prev => ({ ...prev, include_email: e.target.checked }))}
                   className="rounded"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   Include my email address in signature
                 </span>
               </label>
@@ -756,7 +756,7 @@ export default function LettersPage() {
                   onChange={(e) => setEmailOptions(prev => ({ ...prev, include_phone: e.target.checked }))}
                   className="rounded"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   Include my phone number in signature
                 </span>
               </label>
@@ -765,7 +765,7 @@ export default function LettersPage() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowEmailOptionsModal(false)}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
@@ -783,20 +783,20 @@ export default function LettersPage() {
       {/* Website Prompt Modal */}
       {showWebsitePrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Letter Copied!
             </h3>
-            <p className="text-gray-700 mb-6">
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
               Your letter for <strong>{websitePromptData.recipientName}</strong> has been copied to your clipboard.
             </p>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Would you like to open {websitePromptData.recipientName}'s website to paste it into their contact form?
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowWebsitePrompt(false)}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 No Thanks
               </button>

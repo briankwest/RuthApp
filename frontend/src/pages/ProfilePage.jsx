@@ -142,20 +142,20 @@ export default function ProfilePage() {
       {error && <Toast message={error} type="error" onClose={() => setError('')} />}
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Profile</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
           Manage your personal information and addresses
         </p>
       </div>
 
 
       {/* Personal Information */}
-      <div className="bg-white shadow-sm rounded-lg p-6">
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Personal Information</h2>
           <button
             onClick={() => setEditMode(!editMode)}
-            className="text-sm text-blue-600 hover:text-blue-700"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
           >
             {editMode ? 'Cancel' : 'Edit'}
           </button>
@@ -164,7 +164,7 @@ export default function ProfilePage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 First Name
               </label>
               <input
@@ -174,13 +174,13 @@ export default function ProfilePage() {
                 value={formData.first_name}
                 onChange={handleChange}
                 disabled={!editMode}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Last Name
               </label>
               <input
@@ -190,14 +190,14 @@ export default function ProfilePage() {
                 value={formData.last_name}
                 onChange={handleChange}
                 disabled={!editMode}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Email
             </label>
             <input
@@ -207,13 +207,13 @@ export default function ProfilePage() {
               value={formData.email}
               onChange={handleChange}
               disabled={!editMode}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Phone
             </label>
             <input
@@ -223,7 +223,7 @@ export default function ProfilePage() {
               value={formData.phone}
               onChange={handleChange}
               disabled={!editMode}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
             />
           </div>
 
@@ -240,36 +240,36 @@ export default function ProfilePage() {
       </div>
 
       {/* Saved Addresses */}
-      <div className="bg-white shadow-sm rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">My Addresses</h2>
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">My Addresses</h2>
 
         {/* Voter Registration Link */}
         {isNorthDakota && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg">
+          <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-200 dark:border-green-700 rounded-lg">
             <div className="flex flex-col gap-3">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 North Dakota Voting Information
               </h3>
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                 North Dakota is the only state that does not require voter registration. The state's Voter ID law instead requires that anyone who has lived in North Dakota for at least 30 days bring a valid form of identification (e.g., ND driver's license, tribal ID, or long-term care certificate) when they vote.
               </p>
             </div>
           </div>
         )}
         {voterRegUrl && primaryAddress && !isNorthDakota && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg">
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-200 dark:border-blue-700 rounded-lg">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Register to Vote
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   Check your voter registration status or register to vote in {primaryAddress.state}
                 </p>
               </div>
@@ -292,28 +292,28 @@ export default function ProfilePage() {
                 key={addr.id}
                 className={`p-4 rounded-md border ${
                   addr.is_primary
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                    : 'border-gray-200 dark:border-gray-700'
                 }`}
               >
                 <div className="flex justify-between items-start">
                   <div>
                     {addr.is_primary && (
-                      <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded mb-2">
+                      <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 rounded mb-2">
                         Primary
                       </span>
                     )}
-                    <p className="font-medium text-gray-900">{addr.street_1}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{addr.street_1}</p>
                     {addr.street_2 && (
-                      <p className="text-gray-600">{addr.street_2}</p>
+                      <p className="text-gray-600 dark:text-gray-400">{addr.street_2}</p>
                     )}
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       {addr.city}, {addr.state} {addr.zip_code}
                     </p>
                   </div>
                   <button
                     onClick={() => handleDeleteAddress(addr.id)}
-                    className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium"
                   >
                     Delete
                   </button>
@@ -324,11 +324,11 @@ export default function ProfilePage() {
         )}
 
         {/* Add New Address Form */}
-        <div className="border-t border-gray-200 pt-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Address</h3>
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Add New Address</h3>
           <form onSubmit={handleAddAddress} className="space-y-4">
             <div>
-              <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="street" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Street Address
               </label>
               <input
@@ -337,14 +337,14 @@ export default function ProfilePage() {
                 type="text"
                 value={newAddress.street}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="123 Main St"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="street_2" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="street_2" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Apt/Suite (Optional)
               </label>
               <input
@@ -353,14 +353,14 @@ export default function ProfilePage() {
                 type="text"
                 value={newAddress.street_2}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Apt 4B"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   City
                 </label>
                 <input
@@ -369,14 +369,14 @@ export default function ProfilePage() {
                   type="text"
                   value={newAddress.city}
                   onChange={handleAddressChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                   placeholder="McAlester"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="state" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   State
                 </label>
                 <input
@@ -385,7 +385,7 @@ export default function ProfilePage() {
                   type="text"
                   value={newAddress.state}
                   onChange={handleAddressChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                   maxLength={2}
                   placeholder="OK"
                   required
@@ -394,7 +394,7 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 ZIP Code
               </label>
               <input
@@ -403,7 +403,7 @@ export default function ProfilePage() {
                 type="text"
                 value={newAddress.zip_code}
                 onChange={handleAddressChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 maxLength={10}
                 placeholder="74501"
                 required
@@ -417,9 +417,9 @@ export default function ProfilePage() {
                 type="checkbox"
                 checked={newAddress.is_primary}
                 onChange={(e) => setNewAddress({ ...newAddress, is_primary: e.target.checked })}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900"
               />
-              <label htmlFor="is_primary" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="is_primary" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                 Set as primary address
               </label>
             </div>

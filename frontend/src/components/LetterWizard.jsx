@@ -261,14 +261,14 @@ export default function LetterWizard({ onClose }) {
         {/* Mobile: Progress Bar */}
         <div className="md:hidden mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Step {currentStep} of {steps.length}: {steps[currentStep - 1].label}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
               {Math.round((currentStep / steps.length) * 100)}%
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${(currentStep / steps.length) * 100}%` }}
@@ -287,17 +287,17 @@ export default function LetterWizard({ onClose }) {
                       ? 'bg-blue-600 text-white'
                       : currentStep > step.num
                       ? 'bg-green-500 text-white'
-                      : 'bg-gray-200 text-gray-600'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                   }`}
                 >
                   {currentStep > step.num ? '✓' : step.num}
                 </div>
-                <span className="text-xs mt-1 text-gray-600 text-center">{step.label}</span>
+                <span className="text-xs mt-1 text-gray-600 dark:text-gray-400 text-center">{step.label}</span>
               </div>
               {idx < steps.length - 1 && (
                 <div
                   className={`h-1 flex-1 mx-2 ${
-                    currentStep > step.num ? 'bg-green-500' : 'bg-gray-200'
+                    currentStep > step.num ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
                   }`}
                 />
               )}
@@ -311,19 +311,19 @@ export default function LetterWizard({ onClose }) {
   const renderStep1 = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Select Writing Profile</h3>
-        <p className="text-gray-600">Choose the writing style for your letter.</p>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Select Writing Profile</h3>
+        <p className="text-gray-600 dark:text-gray-400">Choose the writing style for your letter.</p>
       </div>
 
       {writingProfiles.length === 0 ? (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-          <div className="text-yellow-800 mb-4">
+        <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6 text-center">
+          <div className="text-yellow-800 dark:text-yellow-300 mb-4">
             <svg className="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <h4 className="font-semibold text-lg">No Writing Profiles Found</h4>
           </div>
-          <p className="text-sm text-yellow-700 mb-4">
+          <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
             You need at least one writing profile to write letters.
           </p>
           <button
@@ -340,8 +340,8 @@ export default function LetterWizard({ onClose }) {
               key={profile.id}
               className={`block p-2 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
                 formData.writingProfileId === profile.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
               }`}
             >
               <div className="flex items-start gap-1.5 sm:gap-3">
@@ -355,16 +355,16 @@ export default function LetterWizard({ onClose }) {
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                    <span className="font-semibold text-gray-900 text-xs sm:text-base break-words leading-tight">{profile.name}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white text-xs sm:text-base break-words leading-tight">{profile.name}</span>
                     {profile.is_default && (
-                      <span className="px-1.5 py-0.5 text-[10px] sm:text-xs bg-blue-100 text-blue-700 rounded flex-shrink-0">
+                      <span className="px-1.5 py-0.5 text-[10px] sm:text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded flex-shrink-0">
                         Default
                       </span>
                     )}
                   </div>
                   {profile.description && (
                     <p
-                      className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1"
+                      className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1"
                       style={{
                         display: '-webkit-box',
                         WebkitLineClamp: '1',
@@ -397,8 +397,8 @@ export default function LetterWizard({ onClose }) {
             key={rep.id}
             className={`block p-4 border rounded-lg cursor-pointer transition-colors ${
               formData.recipientIds.includes(rep.id)
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400'
+                ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
+                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
             }`}
           >
             <div className="flex items-start">
@@ -409,9 +409,9 @@ export default function LetterWizard({ onClose }) {
                 className="mt-1 mr-3"
               />
               <div className="flex-1">
-                <div className="font-semibold text-gray-900">{rep.name}</div>
-                <div className="text-sm text-gray-600">{rep.title}</div>
-                <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                <div className="font-semibold text-gray-900 dark:text-white">{rep.name}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{rep.title}</div>
+                <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {rep.party && <span>{rep.party}</span>}
                   {rep.district && <span>District {rep.district}</span>}
                 </div>
@@ -425,14 +425,14 @@ export default function LetterWizard({ onClose }) {
     return (
       <div className="space-y-6">
         <div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Select Recipients</h3>
-          <p className="text-gray-600">Choose which representatives will receive your letter.</p>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Select Recipients</h3>
+          <p className="text-gray-600 dark:text-gray-400">Choose which representatives will receive your letter.</p>
         </div>
 
         {savedReps.length === 0 ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-            <h4 className="font-semibold text-lg text-yellow-800 mb-2">No Representatives Saved</h4>
-            <p className="text-sm text-yellow-700 mb-4">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6 text-center">
+            <h4 className="font-semibold text-lg text-yellow-800 dark:text-yellow-300 mb-2">No Representatives Saved</h4>
+            <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
               You need to save representatives before you can write letters to them.
             </p>
             <button
@@ -447,7 +447,7 @@ export default function LetterWizard({ onClose }) {
             {/* Federal Representatives */}
             {federalReps.length > 0 && (
               <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-3">Federal Representatives</h4>
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">Federal Representatives</h4>
                 {renderRepresentativeList(federalReps)}
               </div>
             )}
@@ -455,7 +455,7 @@ export default function LetterWizard({ onClose }) {
             {/* State Representatives */}
             {stateReps.length > 0 && (
               <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-3">State Representatives</h4>
+                <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">State Representatives</h4>
                 {renderRepresentativeList(stateReps)}
               </div>
             )}
@@ -468,18 +468,18 @@ export default function LetterWizard({ onClose }) {
   const renderStep3 = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Add Context from News Articles</h3>
-        <p className="text-gray-600">Add news articles to provide context for AI topic suggestions.</p>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Add Context from News Articles</h3>
+        <p className="text-gray-600 dark:text-gray-400">Add news articles to provide context for AI topic suggestions.</p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-        <p className="text-sm text-blue-800">
+      <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-md p-4">
+        <p className="text-sm text-blue-800 dark:text-blue-300">
           <strong>Recommended:</strong> Add URLs to news articles related to your advocacy area. The AI will analyze these to suggest relevant letter topics.
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Article URLs
         </label>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -489,7 +489,7 @@ export default function LetterWizard({ onClose }) {
             onChange={(e) => setCurrentUrl(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && addArticleUrl()}
             placeholder="https://example.com/article"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <button
             onClick={addArticleUrl}
@@ -502,12 +502,12 @@ export default function LetterWizard({ onClose }) {
 
       {formData.articleUrls.length > 0 && (
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Added Articles ({formData.articleUrls.length})
           </label>
           {formData.articleUrls.map((url, index) => (
-            <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-              <span className="flex-1 text-sm text-gray-700 truncate">{url}</span>
+            <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded">
+              <span className="flex-1 text-sm text-gray-700 dark:text-gray-300 truncate">{url}</span>
               <button
                 onClick={() => removeArticleUrl(index)}
                 className="text-red-600 hover:text-red-700 text-sm"
@@ -527,11 +527,11 @@ export default function LetterWizard({ onClose }) {
             onChange={(e) => updateField('sameLetterForAll', e.target.checked)}
             className="rounded"
           />
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-gray-700 dark:text-gray-300">
             Generate the same letter for all recipients
           </span>
         </label>
-        <p className="text-xs text-gray-500 mt-1 ml-6">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
           {formData.sameLetterForAll
             ? 'One letter will be generated for all selected representatives'
             : 'Individual letters will be generated for each representative'}
@@ -547,10 +547,10 @@ export default function LetterWizard({ onClose }) {
     return (
       <div className="space-y-6">
         <div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
             {hasArticles ? 'Choose or Enter Letter Topic' : 'Enter Letter Topic'}
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             {hasArticles
               ? 'AI will suggest topics based on your articles, or you can enter your own.'
               : 'Enter your letter topic below, or go back to step 3 to add articles for AI topic suggestions.'}
@@ -566,7 +566,7 @@ export default function LetterWizard({ onClose }) {
             >
               {generatingTopics ? 'Generating Topic Suggestions...' : 'Generate AI Topic Suggestions'}
             </button>
-            <p className="text-sm text-gray-600 mt-3">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
               AI will analyze your articles and suggest 10 relevant letter topics
             </p>
           </div>
@@ -574,7 +574,7 @@ export default function LetterWizard({ onClose }) {
 
         {hasTopicSuggestions && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Suggested Topics (Select One)
             </label>
             <select
@@ -583,7 +583,7 @@ export default function LetterWizard({ onClose }) {
                 updateField('selectedTopic', e.target.value);
                 updateField('customTopic', '');
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">-- Select a topic --</option>
               {formData.suggestedTopics.map((topic, index) => (
@@ -598,14 +598,14 @@ export default function LetterWizard({ onClose }) {
         {/* Only show OR divider if there are AI suggestions to choose from */}
         {hasTopicSuggestions && (
           <div className="flex items-center gap-4">
-            <div className="flex-1 border-t border-gray-300"></div>
-            <span className="text-sm text-gray-600">OR</span>
-            <div className="flex-1 border-t border-gray-300"></div>
+            <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">OR</span>
+            <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {hasTopicSuggestions ? 'Enter Your Own Topic' : 'Letter Topic'}
           </label>
           <input
@@ -616,10 +616,10 @@ export default function LetterWizard({ onClose }) {
               updateField('selectedTopic', '');
             }}
             placeholder="e.g., Support for Climate Change Legislation"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           {!hasArticles && (
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               💡 Tip: Add article URLs in step 3 to get AI-generated topic suggestions
             </p>
           )}
@@ -631,17 +631,17 @@ export default function LetterWizard({ onClose }) {
   const renderStep5 = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Additional Context & Details</h3>
-        <p className="text-gray-600">Add personal stories, specific points, or additional context for your letter.</p>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Additional Context & Details</h3>
+        <p className="text-gray-600 dark:text-gray-400">Add personal stories, specific points, or additional context for your letter.</p>
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h4 className="font-semibold text-gray-900 mb-1">Your Selected Topic:</h4>
-        <p className="text-gray-700">{formData.customTopic || formData.selectedTopic}</p>
+      <div className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Your Selected Topic:</h4>
+        <p className="text-gray-700 dark:text-gray-300">{formData.customTopic || formData.selectedTopic}</p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Additional Context (Optional)
         </label>
         <textarea
@@ -649,9 +649,9 @@ export default function LetterWizard({ onClose }) {
           onChange={(e) => updateField('customContext', e.target.value)}
           placeholder="Provide any additional context, personal stories, or specific points you want to make..."
           rows={8}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           This will be incorporated into your letter along with the topic and article context
         </p>
       </div>
@@ -661,45 +661,45 @@ export default function LetterWizard({ onClose }) {
   const renderStep6 = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Review & Generate Letters</h3>
-        <p className="text-gray-600">Review your selections and generate AI-powered letters.</p>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Review & Generate Letters</h3>
+        <p className="text-gray-600 dark:text-gray-400">Review your selections and generate AI-powered letters.</p>
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-4">
+      <div className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg p-6 space-y-4">
         <div>
-          <h4 className="font-semibold text-gray-900">Writing Profile</h4>
-          <p className="text-gray-700">
+          <h4 className="font-semibold text-gray-900 dark:text-white">Writing Profile</h4>
+          <p className="text-gray-700 dark:text-gray-300">
             {writingProfiles.find(p => p.id === formData.writingProfileId)?.name}
           </p>
         </div>
 
         <div>
-          <h4 className="font-semibold text-gray-900">Recipients</h4>
-          <p className="text-gray-700">{formData.recipientIds.length} representative(s) selected</p>
+          <h4 className="font-semibold text-gray-900 dark:text-white">Recipients</h4>
+          <p className="text-gray-700 dark:text-gray-300">{formData.recipientIds.length} representative(s) selected</p>
         </div>
 
         <div>
-          <h4 className="font-semibold text-gray-900">Topic</h4>
-          <p className="text-gray-700">{formData.customTopic || formData.selectedTopic}</p>
+          <h4 className="font-semibold text-gray-900 dark:text-white">Topic</h4>
+          <p className="text-gray-700 dark:text-gray-300">{formData.customTopic || formData.selectedTopic}</p>
         </div>
 
         {formData.articleUrls.length > 0 && (
           <div>
-            <h4 className="font-semibold text-gray-900">Context Articles</h4>
-            <p className="text-gray-700">{formData.articleUrls.length} article(s) added</p>
+            <h4 className="font-semibold text-gray-900 dark:text-white">Context Articles</h4>
+            <p className="text-gray-700 dark:text-gray-300">{formData.articleUrls.length} article(s) added</p>
           </div>
         )}
 
         {formData.customContext && (
           <div>
-            <h4 className="font-semibold text-gray-900">Additional Context</h4>
-            <p className="text-gray-700 text-sm">{formData.customContext.substring(0, 150)}...</p>
+            <h4 className="font-semibold text-gray-900 dark:text-white">Additional Context</h4>
+            <p className="text-gray-700 dark:text-gray-300 text-sm">{formData.customContext.substring(0, 150)}...</p>
           </div>
         )}
 
         <div>
-          <h4 className="font-semibold text-gray-900">Letter Strategy</h4>
-          <p className="text-gray-700">
+          <h4 className="font-semibold text-gray-900 dark:text-white">Letter Strategy</h4>
+          <p className="text-gray-700 dark:text-gray-300">
             {formData.sameLetterForAll
               ? 'Same letter for all recipients'
               : 'Individual letters for each recipient'}
@@ -720,32 +720,32 @@ export default function LetterWizard({ onClose }) {
   const renderStep7 = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Review Your Letters</h3>
-        <p className="text-gray-600">Review and edit your generated letters before saving.</p>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Review Your Letters</h3>
+        <p className="text-gray-600 dark:text-gray-400">Review and edit your generated letters before saving.</p>
       </div>
 
       {formData.generatedLetters.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-600">No letters generated yet.</p>
+          <p className="text-gray-600 dark:text-gray-400">No letters generated yet.</p>
         </div>
       ) : (
         <div className="space-y-6">
           {formData.generatedLetters.map((letter, index) => (
-            <div key={letter.id} className="border border-gray-300 rounded-lg p-6">
+            <div key={letter.id} className="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-6">
               <div className="mb-4">
-                <h4 className="font-semibold text-gray-900 text-lg mb-1">
+                <h4 className="font-semibold text-gray-900 dark:text-white text-lg mb-1">
                   Letter {index + 1}: To {letter.recipient_name}
                 </h4>
-                <p className="text-sm text-gray-600">{letter.recipient_title}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{letter.recipient_title}</p>
               </div>
 
               <div className="mb-3">
-                <p className="text-sm font-medium text-gray-700">Subject:</p>
-                <p className="text-gray-900">{letter.subject}</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Subject:</p>
+                <p className="text-gray-900 dark:text-white">{letter.subject}</p>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded p-4">
-                <div className="whitespace-pre-wrap text-gray-800 font-serif text-sm leading-relaxed">
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded p-4">
+                <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 font-serif text-sm leading-relaxed">
                   {letter.content}
                 </div>
               </div>
@@ -754,8 +754,8 @@ export default function LetterWizard({ onClose }) {
         </div>
       )}
 
-      <div className="bg-green-50 border border-green-200 rounded-md p-4">
-        <p className="text-sm text-green-800">
+      <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-md p-4">
+        <p className="text-sm text-green-800 dark:text-green-300">
           Ready to save! Your letters will be saved to your account and available for download or sending.
         </p>
       </div>
@@ -765,24 +765,24 @@ export default function LetterWizard({ onClose }) {
   if (loading && currentStep === 1) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg p-6 max-w-5xl w-full my-8">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-5xl w-full my-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Write New Letter</h1>
-          <p className="text-gray-600 mt-2">Create advocacy letters to your representatives</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Write New Letter</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Create advocacy letters to your representatives</p>
         </div>
 
         {renderStepIndicator()}
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-md">
+            <p className="text-sm text-red-600 dark:text-red-300">{error}</p>
           </div>
         )}
 
@@ -796,10 +796,10 @@ export default function LetterWizard({ onClose }) {
           {currentStep === 7 && renderStep7()}
         </div>
 
-        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
+        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900"
+            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:text-white"
           >
             Cancel
           </button>
@@ -809,7 +809,7 @@ export default function LetterWizard({ onClose }) {
               <button
                 onClick={prevStep}
                 disabled={loading || generatingLetters}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-700 disabled:opacity-50"
               >
                 Previous
               </button>

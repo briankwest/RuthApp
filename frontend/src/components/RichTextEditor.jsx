@@ -72,7 +72,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
     },
     editorProps: {
       attributes: {
-        class: 'prose max-w-none focus:outline-none min-h-[300px] p-4',
+        class: 'prose dark:prose-invert max-w-none focus:outline-none min-h-[300px] p-4 text-gray-900 dark:text-white',
         spellcheck: 'true',
       },
     },
@@ -154,9 +154,9 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
   }
 
   return (
-    <div className="border border-gray-300 rounded-md overflow-hidden">
+    <div className="border border-gray-300 dark:border-gray-600 rounded-md overflow-hidden bg-white dark:bg-gray-900">
       {/* Toolbar */}
-      <div className="bg-gray-50 border-b border-gray-300 p-2 flex flex-wrap gap-2">
+      <div className="bg-gray-50 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-600 p-2 flex flex-wrap gap-2">
         {/* Formatting Buttons */}
         <button
           type="button"
@@ -165,7 +165,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           className={`px-3 py-1 text-sm font-bold rounded ${
             editor.isActive('bold')
               ? 'bg-blue-600 text-white'
-              : 'bg-white border border-gray-300 hover:bg-gray-100'
+              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
           }`}
         >
           B
@@ -177,13 +177,13 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           className={`px-3 py-1 text-sm italic rounded ${
             editor.isActive('italic')
               ? 'bg-blue-600 text-white'
-              : 'bg-white border border-gray-300 hover:bg-gray-100'
+              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
           }`}
         >
           I
         </button>
 
-        <div className="hidden sm:block w-px bg-gray-300 mx-1"></div>
+        <div className="hidden sm:block w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
         {/* Heading Buttons - Hidden on mobile */}
         <button
@@ -192,7 +192,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           className={`hidden sm:inline-flex px-3 py-1 text-sm rounded ${
             editor.isActive('heading', { level: 1 })
               ? 'bg-blue-600 text-white'
-              : 'bg-white border border-gray-300 hover:bg-gray-100'
+              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
           }`}
         >
           H1
@@ -203,13 +203,13 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           className={`hidden sm:inline-flex px-3 py-1 text-sm rounded ${
             editor.isActive('heading', { level: 2 })
               ? 'bg-blue-600 text-white'
-              : 'bg-white border border-gray-300 hover:bg-gray-100'
+              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
           }`}
         >
           H2
         </button>
 
-        <div className="hidden sm:block w-px bg-gray-300 mx-1"></div>
+        <div className="hidden sm:block w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
         {/* List Buttons */}
         <button
@@ -218,7 +218,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           className={`px-3 py-1 text-sm rounded ${
             editor.isActive('bulletList')
               ? 'bg-blue-600 text-white'
-              : 'bg-white border border-gray-300 hover:bg-gray-100'
+              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
           }`}
         >
           • List
@@ -229,13 +229,13 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           className={`px-3 py-1 text-sm rounded ${
             editor.isActive('orderedList')
               ? 'bg-blue-600 text-white'
-              : 'bg-white border border-gray-300 hover:bg-gray-100'
+              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
           }`}
         >
           1. List
         </button>
 
-        <div className="w-px bg-gray-300 mx-1"></div>
+        <div className="w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
         {/* Copy Button */}
         <button
@@ -244,7 +244,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           className={`px-3 py-1 text-sm rounded ${
             copied
               ? 'bg-green-600 text-white'
-              : 'bg-white border border-gray-300 hover:bg-gray-100'
+              : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600'
           }`}
         >
           {copied ? '✓ Copied' : '📋 Copy'}
@@ -253,7 +253,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
         <div className="flex-grow"></div>
 
         {/* AI Assistance Buttons */}
-        <div className="flex flex-wrap gap-2 border-l border-gray-300 pl-2">
+        <div className="flex flex-wrap gap-2 border-l border-gray-300 dark:border-gray-600 pl-2">
           <button
             type="button"
             onClick={() => handleAIImprovement('grammar')}
@@ -301,15 +301,15 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
 
       {/* Custom Input Section */}
       {showCustomInput && (
-        <div className="bg-purple-50 border-b border-purple-200 p-3 space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
+        <div className="bg-purple-50 dark:bg-purple-900/30 border-b border-purple-200 dark:border-purple-700 p-3 space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Custom Instructions:
           </label>
           <textarea
             value={customPrompt}
             onChange={(e) => setCustomPrompt(e.target.value)}
             placeholder="e.g., Make this more formal, Add more emotional appeal, Focus on economic impacts..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             rows={2}
             disabled={aiLoading}
           />
@@ -329,7 +329,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
                 setCustomPrompt('');
               }}
               disabled={aiLoading}
-              className="px-4 py-1.5 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
@@ -341,7 +341,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
       <EditorContent editor={editor} />
 
       {/* Word Count */}
-      <div className="bg-gray-50 border-t border-gray-300 px-4 py-2 text-xs text-gray-600">
+      <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-300 dark:border-gray-600 px-4 py-2 text-xs text-gray-600 dark:text-gray-400">
         {editor.storage.characterCount?.characters() || editor.getText().split(/\s+/).filter(w => w).length} words
       </div>
     </div>
