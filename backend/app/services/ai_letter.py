@@ -260,7 +260,7 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
     async def generate_voice_prompt(self,
                                    writing_profile: UserWritingProfile,
                                    analysis: Optional[Dict] = None) -> str:
-        """Generate a system prompt for AI based on voice profile"""
+        """Generate a comprehensive system prompt for AI based on voice profile"""
 
         # If no analysis provided, use stored attributes
         if not analysis:
@@ -272,34 +272,157 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
                 "personality_description": writing_profile.description or "Professional voice"
             }
 
-        # Build the voice prompt
+        # Build the comprehensive voice prompt
         prompt_parts = [
-            f"You are writing as {writing_profile.name}, with the following voice characteristics:",
-            f"\nPersonality: {analysis.get('personality_description', writing_profile.description)}",
-            f"\nTone: {', '.join(analysis.get('tone_attributes', ['professional']))}",
-            f"\nStyle: {', '.join(analysis.get('style_attributes', ['balanced']))}",
-            f"\nVocabulary: {analysis.get('vocabulary_level', 'standard')} level"
+            f"You are writing as {writing_profile.name}, with the following comprehensive voice profile:",
+            f"\n=== PERSONALITY & STYLE ===",
+            f"Description: {analysis.get('personality_description', writing_profile.description)}",
+            f"Tone: {', '.join(analysis.get('tone_attributes', ['professional']))}",
+            f"Style: {', '.join(analysis.get('style_attributes', ['balanced']))}",
+            f"Vocabulary: {analysis.get('vocabulary_level', 'standard')} level"
         ]
 
-        # Add preferences
-        if writing_profile.include_personal_stories:
-            prompt_parts.append("\n- Include relevant personal anecdotes when appropriate")
-        if writing_profile.include_data_statistics:
-            prompt_parts.append("\n- Support arguments with data and statistics")
-        if writing_profile.include_emotional_appeals:
-            prompt_parts.append("\n- Include emotional appeals to connect with the reader")
-        if writing_profile.include_constitutional_arguments:
-            prompt_parts.append("\n- Reference constitutional principles when relevant")
-
-        # Add signature phrases if any
-        if analysis.get('signature_phrases'):
-            prompt_parts.append(f"\n- Naturally incorporate phrases like: {', '.join(analysis['signature_phrases'][:3])}")
-
-        # Add political stance if specified
+        # Political leaning
         if writing_profile.political_leaning:
-            prompt_parts.append(f"\n- Write from a {writing_profile.political_leaning} perspective")
+            prompt_parts.append(f"Political Perspective: {writing_profile.political_leaning}")
 
-        prompt_parts.append("\n\nMaintain this voice consistently throughout the letter while being respectful and professional.")
+        # Core values
+        if writing_profile.core_values and len(writing_profile.core_values) > 0:
+            prompt_parts.append(f"\n=== CORE VALUES ===")
+            prompt_parts.append(f"Your advocacy is guided by these principles: {', '.join(writing_profile.core_values)}")
+            prompt_parts.append("Let these values subtly inform your arguments and perspective.")
+
+        # Issue positions - organize by priority
+        if writing_profile.issue_positions and len(writing_profile.issue_positions) > 0:
+            prompt_parts.append(f"\n=== ISSUE POSITIONS ===")
+
+            # Separate by priority
+            critical_issues = []
+            high_issues = []
+            other_issues = []
+
+            for issue_key, issue_data in writing_profile.issue_positions.items():
+                priority = issue_data.get('priority', 'medium')
+                position = issue_data.get('position', '').replace('_', ' ')
+                personal = issue_data.get('personal_connection', '')
+
+                issue_name = issue_key.replace('_', ' ').title()
+                issue_line = f"- {issue_name}: {position}"
+                if personal:
+                    issue_line += f" (Personal: {personal})"
+
+                if priority == 'critical':
+                    critical_issues.append(issue_line)
+                elif priority == 'high':
+                    high_issues.append(issue_line)
+                else:
+                    other_issues.append(issue_line)
+
+            if critical_issues:
+                prompt_parts.append("Critical Priority Issues:")
+                prompt_parts.extend(critical_issues)
+            if high_issues:
+                prompt_parts.append("High Priority Issues:")
+                prompt_parts.extend(high_issues)
+            if other_issues:
+                prompt_parts.append("Other Important Issues:")
+                prompt_parts.extend(other_issues)
+
+        # Abortion position (if specified)
+        if writing_profile.abortion_position:
+            prompt_parts.append(f"\nAbortion Rights Position: {writing_profile.abortion_position.replace('_', ' ')}")
+
+        # Argumentative frameworks
+        if writing_profile.argumentative_frameworks:
+            active_frameworks = [k.replace('_', ' ').title() for k, v in writing_profile.argumentative_frameworks.items() if v]
+            if active_frameworks:
+                prompt_parts.append(f"\n=== ARGUMENTATIVE APPROACH ===")
+                prompt_parts.append(f"Build your arguments using these frameworks: {', '.join(active_frameworks)}")
+
+                # Detailed instructions per framework
+                framework_details = []
+                if writing_profile.argumentative_frameworks.get('constitutional'):
+                    framework_details.append("- Reference constitutional principles, rights, and legal precedents")
+                if writing_profile.argumentative_frameworks.get('moral_ethical'):
+                    framework_details.append("- Appeal to moral values, ethics, and what is right")
+                if writing_profile.argumentative_frameworks.get('economic'):
+                    framework_details.append("- Emphasize fiscal impact, economic benefits/costs, and financial responsibility")
+                if writing_profile.argumentative_frameworks.get('future_generations'):
+                    framework_details.append("- Consider long-term consequences and impact on future generations")
+                if writing_profile.argumentative_frameworks.get('practical_evidence'):
+                    framework_details.append("- Use data, research, and real-world evidence")
+                if writing_profile.argumentative_frameworks.get('personal_stories'):
+                    framework_details.append("- Include personal anecdotes and human impact stories")
+
+                if framework_details:
+                    prompt_parts.extend(framework_details)
+
+        # Content preferences
+        content_prefs = []
+        if writing_profile.include_personal_stories:
+            content_prefs.append("Include relevant personal anecdotes when appropriate")
+        if writing_profile.include_data_statistics:
+            content_prefs.append("Support arguments with data and statistics")
+        if writing_profile.include_emotional_appeals:
+            content_prefs.append("Include emotional appeals to connect with the reader")
+        if writing_profile.include_constitutional_arguments:
+            content_prefs.append("Reference constitutional principles when relevant")
+
+        if content_prefs:
+            prompt_parts.append(f"\n=== CONTENT PREFERENCES ===")
+            for pref in content_prefs:
+                prompt_parts.append(f"- {pref}")
+
+        # Regional context
+        if writing_profile.regional_context:
+            community_type = writing_profile.regional_context.get('community_type', '')
+            state_concerns = writing_profile.regional_context.get('state_concerns', '')
+
+            if community_type or state_concerns:
+                prompt_parts.append(f"\n=== REGIONAL CONTEXT ===")
+                if community_type:
+                    prompt_parts.append(f"Community Type: {community_type}")
+                    prompt_parts.append(f"Frame issues in terms relevant to {community_type} communities")
+                if state_concerns:
+                    prompt_parts.append(f"State/Local Concerns: {state_concerns}")
+
+        # Representative engagement strategy (to be applied dynamically based on recipient)
+        if writing_profile.representative_engagement:
+            prompt_parts.append(f"\n=== ENGAGEMENT STRATEGY ===")
+            aligned = writing_profile.representative_engagement.get('aligned_approach', '')
+            opposing = writing_profile.representative_engagement.get('opposing_approach', '')
+            bipartisan = writing_profile.representative_engagement.get('bipartisan_framing', '')
+
+            if aligned:
+                prompt_parts.append(f"With aligned representatives: {aligned.replace('_', ' ')}")
+            if opposing:
+                prompt_parts.append(f"With opposing representatives: {opposing.replace('_', ' ')}")
+            if bipartisan:
+                prompt_parts.append(f"Bipartisan framing: {bipartisan.replace('_', ' ')}")
+
+        # Compromise positioning
+        if writing_profile.compromise_positioning:
+            incremental = writing_profile.compromise_positioning.get('incremental_progress', '')
+            bipartisan_pref = writing_profile.compromise_positioning.get('bipartisan_preference', '')
+
+            if incremental or bipartisan_pref:
+                prompt_parts.append(f"\n=== COMPROMISE APPROACH ===")
+                if incremental:
+                    prompt_parts.append(f"Incremental Progress: {incremental}")
+                if bipartisan_pref:
+                    prompt_parts.append(f"Bipartisan Preference: {bipartisan_pref}")
+
+        # Signature phrases
+        if analysis.get('signature_phrases'):
+            prompt_parts.append(f"\n=== SIGNATURE PHRASES ===")
+            prompt_parts.append(f"Naturally incorporate phrases like: {', '.join(analysis['signature_phrases'][:3])}")
+
+        # Final instructions
+        prompt_parts.append(f"\n=== WRITING GUIDELINES ===")
+        prompt_parts.append("- Maintain this voice consistently throughout the letter")
+        prompt_parts.append("- Be respectful and professional, even when disagreeing")
+        prompt_parts.append("- Make your arguments persuasive and evidence-based")
+        prompt_parts.append("- Tailor your message to the specific representative's role and jurisdiction")
 
         return "\n".join(prompt_parts)
 
@@ -416,8 +539,22 @@ Additional Context: {additional_context or 'None provided'}
 """
 
             # Get the appropriate system prompt
-            if writing_profile and writing_profile.ai_system_prompt:
-                system_prompt = writing_profile.ai_system_prompt
+            if writing_profile:
+                # Generate comprehensive voice prompt using all profile data
+                voice_analyzer = VoiceAnalyzer()
+                system_prompt = await voice_analyzer.generate_voice_prompt(writing_profile)
+
+                # Add constituent communications expertise
+                system_prompt = f"""You are an expert constituent communications specialist who helps citizens write effective letters to their representatives.
+
+{system_prompt}
+
+Write clear, compelling, and respectful letters that:
+- Express the constituent's views clearly and persuasively
+- Include specific requests or calls to action
+- Reference relevant facts and personal experiences when appropriate
+- Maintain a respectful dialogue even when disagreeing
+- Will be taken seriously by elected officials and their staff"""
             else:
                 system_prompt = """You are an expert constituent communications specialist who helps citizens write effective letters to their representatives.
 
@@ -560,9 +697,18 @@ Sincerely,
         """Refine a letter based on user feedback"""
         try:
             # Get the appropriate system prompt
-            system_prompt = "You are an expert letter editor."
-            if writing_profile and writing_profile.ai_system_prompt:
-                system_prompt = writing_profile.ai_system_prompt
+            if writing_profile:
+                # Generate comprehensive voice prompt using all profile data
+                voice_analyzer = VoiceAnalyzer()
+                voice_prompt = await voice_analyzer.generate_voice_prompt(writing_profile)
+
+                system_prompt = f"""You are an expert letter editor.
+
+{voice_prompt}
+
+When editing, maintain all the voice characteristics and values above while incorporating the user's feedback."""
+            else:
+                system_prompt = "You are an expert letter editor."
 
             prompt = f"""Please revise the following letter based on this feedback:
 
@@ -632,9 +778,18 @@ Please provide the revised letter maintaining the same general structure but inc
             variation_instructions.append(approach_variations[variation_index % len(approach_variations)])
 
             # Get the appropriate system prompt
-            system_prompt = "You are an expert at personalizing letters for different officials."
-            if writing_profile and writing_profile.ai_system_prompt:
-                system_prompt = writing_profile.ai_system_prompt
+            if writing_profile:
+                # Generate comprehensive voice prompt using all profile data
+                voice_analyzer = VoiceAnalyzer()
+                voice_prompt = await voice_analyzer.generate_voice_prompt(writing_profile)
+
+                system_prompt = f"""You are an expert at personalizing letters for different officials.
+
+{voice_prompt}
+
+When personalizing, maintain all the voice characteristics and values above while adapting the specific arguments and framing for this particular representative."""
+            else:
+                system_prompt = "You are an expert at personalizing letters for different officials."
 
             prompt = f"""Create a personalized variation of this letter for {recipient['title']} {recipient['name']}.
 
