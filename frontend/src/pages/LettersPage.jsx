@@ -206,8 +206,8 @@ export default function LettersPage() {
         signature += `\n${user.email}`;
       }
 
-      if (include_phone && user.phone_number) {
-        signature += `\n${user.phone_number}`;
+      if (include_phone && user.phone) {
+        signature += `\n${user.phone}`;
       }
 
       // Build mailto link with signature
