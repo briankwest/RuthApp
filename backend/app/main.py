@@ -74,7 +74,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description="AI-powered civic engagement platform for writing letters to representatives",
-    version="1.0.0",
+    version=settings.app_version,
     docs_url="/api/docs" if settings.debug else None,  # Disable docs in production
     redoc_url="/api/redoc" if settings.debug else None,
     openapi_url="/api/openapi.json" if settings.debug else None,
@@ -164,7 +164,7 @@ async def root():
     """
     return {
         "name": settings.app_name,
-        "version": "1.0.0",
+        "version": settings.app_version,
         "status": "healthy",
         "documentation": "/api/docs" if settings.debug else None,
     }

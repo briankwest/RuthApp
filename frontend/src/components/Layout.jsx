@@ -41,26 +41,27 @@ export default function Layout() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
-            >
-              {mobileMenuOpen ? (
-                <XMarkIcon className="h-6 w-6" />
-              ) : (
-                <Bars3Icon className="h-6 w-6" />
-              )}
-            </button>
-
-            {/* Logo for mobile */}
-            <div className="md:hidden">
+          <div className="flex items-center justify-between h-16">
+            {/* Mobile menu button and logo */}
+            <div className="flex items-center gap-4 md:hidden">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                {mobileMenuOpen ? (
+                  <XMarkIcon className="h-6 w-6" />
+                ) : (
+                  <Bars3Icon className="h-6 w-6" />
+                )}
+              </button>
               <img src="/ruth_logo.png" alt="Ruth" className="h-10 w-auto" />
             </div>
 
-            {/* User Menu */}
-            <div className="flex items-center gap-2 sm:gap-4">
+            {/* Spacer for desktop to push user menu to right */}
+            <div className="hidden md:block flex-1"></div>
+
+            {/* User Menu - Always right aligned */}
+            <div className="flex items-center gap-2 sm:gap-4 ml-auto">
               <Link
                 to="/profile"
                 className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900"
@@ -87,7 +88,7 @@ export default function Layout() {
           <aside className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 overflow-y-auto">
             <nav className="space-y-2 p-4">
               {/* Logo */}
-              <div className="flex justify-center pb-6 border-b border-gray-200">
+              <div className="flex justify-center pb-6">
                 <img
                   src="/ruth_logo.png"
                   alt="Ruth Logo"
@@ -132,7 +133,7 @@ export default function Layout() {
         <aside className="hidden md:block w-64 bg-white shadow-sm">
           <nav className="space-y-2">
             {/* Logo */}
-            <div className="flex justify-center -mt-[35px] pb-6 border-b border-gray-200">
+            <div className="flex justify-center -mt-[35px] pb-6">
               <img
                 src="/ruth_logo.png"
                 alt="Ruth Logo"

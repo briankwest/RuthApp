@@ -1663,6 +1663,7 @@ async def list_letters(
                         'office_type': recipient.recipient_office_type,
                         'subject': recipient.personalized_subject or letter.subject,
                         'content': recipient.personalized_content,
+                        'email': recipient.recipient_address.get('email', '') if recipient.recipient_address else '',
                         'website': recipient.recipient_address.get('website', '') if recipient.recipient_address else ''
                     }
                     for recipient in recipients
@@ -1783,6 +1784,52 @@ async def finalize_letter(
     await db.commit()
 
     return {"message": "Letter finalized successfully"}
+
+
+@router.patch("/{letter_id}/status")
+async def update_letter_status(
+    letter_id: str,
+    status_update: dict,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Update letter status (toggle between draft and finalized)"""
+    result = await db.execute(
+        select(Letter).where(
+            and_(
+                Letter.id == uuid.UUID(letter_id),
+                Letter.user_id == current_user.id
+            )
+        )
+    )
+    letter = result.scalar_one_or_none()
+
+    if not letter:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Letter not found"
+        )
+
+    new_status = status_update.get('status', '').lower()
+
+    if new_status == 'finalized':
+        letter.status = LetterStatus.FINALIZED
+        if not letter.finalized_at:
+            letter.finalized_at = datetime.utcnow()
+    elif new_status == 'draft':
+        letter.status = LetterStatus.DRAFT
+        # Optionally clear finalized_at when moving back to draft
+        # letter.finalized_at = None
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid status. Must be 'draft' or 'finalized'"
+        )
+
+    letter.updated_at = datetime.utcnow()
+    await db.commit()
+
+    return {"message": f"Letter status updated to {new_status}"}
 
 
 @router.delete("/{letter_id}")

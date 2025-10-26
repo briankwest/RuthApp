@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # Application
     app_name: str = Field(default="Ruth - Civic Letter Platform")
+    app_version: str = Field(default="1.0.0")
     debug: bool = Field(default=False)
     secret_key: str = Field(..., min_length=32)
     allowed_hosts: List[str] = Field(default=["localhost", "127.0.0.1"])

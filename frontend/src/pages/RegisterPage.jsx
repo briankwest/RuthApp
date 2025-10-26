@@ -205,7 +205,7 @@ export default function RegisterPage() {
           {/* Version and Policy Links */}
           <div className="mt-6 pt-4 border-t border-gray-200">
             <div className="flex flex-col items-center gap-2 text-xs text-gray-500">
-              <div>Ruth v1.0.0</div>
+              <div>Ruth v{import.meta.env.VITE_APP_VERSION || '1.0.0'}</div>
               <div className="flex gap-4">
                 <Link
                   to="/terms"

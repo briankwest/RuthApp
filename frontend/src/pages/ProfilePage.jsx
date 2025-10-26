@@ -2,16 +2,15 @@ import { useState, useEffect } from 'react';
 import { repsAPI, authAPI } from '../services/api';
 import useAuthStore from '../stores/authStore';
 import Toast from '../components/Toast';
+import voteRegistrationData from '../data/vote.json';
 
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
   const [addresses, setAddresses] = useState([]);
-  const [savedReps, setSavedReps] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editMode, setEditMode] = useState(false);
-  const [confirmDeleteRep, setConfirmDeleteRep] = useState(null); // Track which rep to delete
   const [confirmDeleteAddress, setConfirmDeleteAddress] = useState(null); // Track which address to delete
 
   const [formData, setFormData] = useState({
@@ -40,7 +39,6 @@ export default function ProfilePage() {
       });
     }
     loadAddresses();
-    loadSavedReps();
   }, [user]);
 
   const loadAddresses = async () => {
@@ -52,14 +50,15 @@ export default function ProfilePage() {
     }
   };
 
-  const loadSavedReps = async () => {
-    try {
-      const response = await repsAPI.getSavedRepresentatives();
-      setSavedReps(response.data.representatives || []);
-    } catch (err) {
-      console.error('Failed to load saved representatives:', err);
-    }
+  const getVoterRegistrationUrl = (state) => {
+    if (!state) return null;
+    const stateCode = state.toUpperCase();
+    return voteRegistrationData[stateCode] || null;
   };
+
+  const primaryAddress = addresses.find(addr => addr.is_primary) || addresses[0];
+  const voterRegUrl = primaryAddress ? getVoterRegistrationUrl(primaryAddress.state) : null;
+  const isNorthDakota = primaryAddress?.state?.toUpperCase() === 'ND';
 
   const handleDeleteAddress = async (addressId) => {
     setConfirmDeleteAddress(addressId);
@@ -76,24 +75,6 @@ export default function ProfilePage() {
       setTimeout(() => setError(''), 3000);
     } finally {
       setConfirmDeleteAddress(null);
-    }
-  };
-
-  const handleRemoveRep = async (repId) => {
-    setConfirmDeleteRep(repId);
-  };
-
-  const confirmRemoveRepAction = async () => {
-    try {
-      await repsAPI.removeSavedRepresentative(confirmDeleteRep);
-      setSuccess('Representative removed successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-      loadSavedReps();
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to remove representative');
-      setTimeout(() => setError(''), 3000);
-    } finally {
-      setConfirmDeleteRep(null);
     }
   };
 
@@ -262,6 +243,48 @@ export default function ProfilePage() {
       <div className="bg-white shadow-sm rounded-lg p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">My Addresses</h2>
 
+        {/* Voter Registration Link */}
+        {isNorthDakota && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg">
+            <div className="flex flex-col gap-3">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                North Dakota Voting Information
+              </h3>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                North Dakota is the only state that does not require voter registration. The state's Voter ID law instead requires that anyone who has lived in North Dakota for at least 30 days bring a valid form of identification (e.g., ND driver's license, tribal ID, or long-term care certificate) when they vote.
+              </p>
+            </div>
+          </div>
+        )}
+        {voterRegUrl && primaryAddress && !isNorthDakota && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Register to Vote
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Check your voter registration status or register to vote in {primaryAddress.state}
+                </p>
+              </div>
+              <a
+                href={voterRegUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-center whitespace-nowrap transition-colors shadow-md hover:shadow-lg"
+              >
+                Register / Check Status →
+              </a>
+            </div>
+          </div>
+        )}
+
         {addresses.length > 0 && (
           <div className="space-y-3 mb-6">
             {addresses.map((addr) => (
@@ -410,401 +433,6 @@ export default function ProfilePage() {
             </button>
           </form>
         </div>
-      </div>
-
-      {/* Saved Representatives */}
-      <div className="bg-white shadow-sm rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">My Saved Representatives</h2>
-
-        {savedReps.length === 0 ? (
-          <p className="text-gray-600 text-center py-8">
-            No saved representatives yet. Visit the Representatives page to find and save your representatives.
-          </p>
-        ) : (
-          <div className="space-y-6">
-            {/* Federal Representatives */}
-            {(() => {
-              const federalReps = savedReps.filter(rep => rep.office_type?.startsWith('federal'));
-              return federalReps.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Federal Representatives</h3>
-                  <div className="space-y-4">
-                    {federalReps.map((rep) => (
-                      <div
-                        key={rep.id}
-                        className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start gap-4">
-                          {/* Photo or placeholder */}
-                          {rep.photo_url ? (
-                            <img
-                              src={rep.photo_url}
-                              alt={rep.name}
-                              className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                              }}
-                            />
-                          ) : null}
-                          <div
-                            className="w-20 h-20 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0"
-                            style={{ display: rep.photo_url ? 'none' : 'flex' }}
-                          >
-                            <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-
-                          {/* Info */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-4">
-                              <div>
-                                <h3 className="text-lg font-bold text-gray-900">{rep.name}</h3>
-                                <p className="text-sm text-gray-600">{rep.title}</p>
-                                {rep.party && (
-                                  <span className="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-700">
-                                    {rep.party}
-                                  </span>
-                                )}
-                                {rep.district && (
-                                  <p className="text-sm text-gray-600 mt-1">District {rep.district}</p>
-                                )}
-                              </div>
-                              {confirmDeleteRep === rep.id ? (
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={confirmRemoveRepAction}
-                                    className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700"
-                                  >
-                                    Confirm
-                                  </button>
-                                  <button
-                                    onClick={() => setConfirmDeleteRep(null)}
-                                    className="px-3 py-1 bg-gray-200 text-gray-700 text-sm font-medium rounded hover:bg-gray-300"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={() => handleRemoveRep(rep.id)}
-                                  className="text-red-600 hover:text-red-700 text-sm font-medium whitespace-nowrap"
-                                >
-                                  Remove
-                                </button>
-                              )}
-                            </div>
-
-                            {/* Contact Info */}
-                            <div className="mt-3 space-y-1 text-sm">
-                              {rep.contact?.phone && (
-                                <div className="flex items-center gap-2">
-                                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                  </svg>
-                                  <span className="text-gray-700">{rep.contact.phone}</span>
-                                </div>
-                              )}
-                              {rep.contact?.fax && (
-                                <div className="flex items-center gap-2">
-                                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                  </svg>
-                                  <span className="text-gray-700">Fax: {rep.contact.fax}</span>
-                                </div>
-                              )}
-                              {rep.contact?.email && (
-                                <div className="flex items-center gap-2">
-                                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                  </svg>
-                                  <a href={`mailto:${rep.contact.email}`} className="text-blue-600 hover:text-blue-700">
-                                    {rep.contact.email}
-                                  </a>
-                                </div>
-                              )}
-                              {rep.contact?.website && (
-                                <div className="flex items-center gap-2">
-                                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                  </svg>
-                                  <a
-                                    href={rep.contact.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:text-blue-700 truncate"
-                                  >
-                                    Visit Website
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Social Media */}
-                            {(rep.social_media?.twitter || rep.social_media?.facebook || rep.social_media?.youtube) && (
-                              <div className="mt-3 flex items-center gap-3">
-                                {rep.social_media.twitter && (
-                                  <a
-                                    href={`https://twitter.com/${rep.social_media.twitter}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-400 hover:text-blue-400"
-                                    title="Twitter"
-                                  >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                      <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                                    </svg>
-                                  </a>
-                                )}
-                                {rep.social_media.facebook && (
-                                  <a
-                                    href={`https://facebook.com/${rep.social_media.facebook}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-400 hover:text-blue-600"
-                                    title="Facebook"
-                                  >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                    </svg>
-                                  </a>
-                                )}
-                                {rep.social_media.youtube && (
-                                  <a
-                                    href={`https://youtube.com/${rep.social_media.youtube}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-400 hover:text-red-600"
-                                    title="YouTube"
-                                  >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                                    </svg>
-                                  </a>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Offices */}
-                            {rep.offices && rep.offices.length > 0 && (
-                              <div className="mt-4 pt-3 border-t border-gray-200">
-                                <h4 className="text-sm font-semibold text-gray-700 mb-2">Offices</h4>
-                                <div className="space-y-2">
-                                  {rep.offices.map((office, idx) => (
-                                    <div key={idx} className="text-sm text-gray-600">
-                                      <p className="font-medium">{office.name}</p>
-                                      <p>{office.street_1}</p>
-                                      {office.city && office.state && (
-                                        <p>{office.city}, {office.state} {office.zip}</p>
-                                      )}
-                                      {office.phone && <p>Phone: {office.phone}</p>}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* State Representatives */}
-            {(() => {
-              const stateReps = savedReps.filter(rep => !rep.office_type?.startsWith('federal'));
-              return stateReps.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">State Representatives</h3>
-                  <div className="space-y-4">
-                    {stateReps.map((rep) => (
-                      <div
-                        key={rep.id}
-                        className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
-                      >
-                <div className="flex items-start gap-4">
-                  {/* Photo or placeholder */}
-                  {rep.photo_url ? (
-                    <img
-                      src={rep.photo_url}
-                      alt={rep.name}
-                      className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  <div
-                    className="w-20 h-20 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0"
-                    style={{ display: rep.photo_url ? 'none' : 'flex' }}
-                  >
-                    <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900">{rep.name}</h3>
-                        <p className="text-sm text-gray-600">{rep.title}</p>
-                        {rep.party && (
-                          <span className="inline-block mt-1 px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-700">
-                            {rep.party}
-                          </span>
-                        )}
-                        {rep.district && (
-                          <p className="text-sm text-gray-600 mt-1">District {rep.district}</p>
-                        )}
-                      </div>
-                      {confirmDeleteRep === rep.id ? (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={confirmRemoveRepAction}
-                            className="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700"
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={() => setConfirmDeleteRep(null)}
-                            className="px-3 py-1 bg-gray-200 text-gray-700 text-sm font-medium rounded hover:bg-gray-300"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => handleRemoveRep(rep.id)}
-                          className="text-red-600 hover:text-red-700 text-sm font-medium whitespace-nowrap"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Contact Info */}
-                    <div className="mt-3 space-y-1 text-sm">
-                      {rep.contact?.phone && (
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                          <span className="text-gray-700">{rep.contact.phone}</span>
-                        </div>
-                      )}
-                      {rep.contact?.fax && (
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                          </svg>
-                          <span className="text-gray-700">Fax: {rep.contact.fax}</span>
-                        </div>
-                      )}
-                      {rep.contact?.email && (
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                          </svg>
-                          <a href={`mailto:${rep.contact.email}`} className="text-blue-600 hover:text-blue-700">
-                            {rep.contact.email}
-                          </a>
-                        </div>
-                      )}
-                      {rep.contact?.website && (
-                        <div className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                          </svg>
-                          <a
-                            href={rep.contact.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-700 truncate"
-                          >
-                            Visit Website
-                          </a>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Social Media */}
-                    {(rep.social_media?.twitter || rep.social_media?.facebook || rep.social_media?.youtube) && (
-                      <div className="mt-3 flex items-center gap-3">
-                        {rep.social_media.twitter && (
-                          <a
-                            href={`https://twitter.com/${rep.social_media.twitter}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-400 hover:text-blue-400"
-                            title="Twitter"
-                          >
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                            </svg>
-                          </a>
-                        )}
-                        {rep.social_media.facebook && (
-                          <a
-                            href={`https://facebook.com/${rep.social_media.facebook}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-400 hover:text-blue-600"
-                            title="Facebook"
-                          >
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                            </svg>
-                          </a>
-                        )}
-                        {rep.social_media.youtube && (
-                          <a
-                            href={`https://youtube.com/${rep.social_media.youtube}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-400 hover:text-red-600"
-                            title="YouTube"
-                          >
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                            </svg>
-                          </a>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Offices */}
-                    {rep.offices && rep.offices.length > 0 && (
-                      <div className="mt-4 pt-3 border-t border-gray-200">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Offices</h4>
-                        <div className="space-y-2">
-                          {rep.offices.map((office, idx) => (
-                            <div key={idx} className="text-sm text-gray-600">
-                              <p className="font-medium">{office.name}</p>
-                              <p>{office.street_1}</p>
-                              {office.city && office.state && (
-                                <p>{office.city}, {office.state} {office.zip}</p>
-                              )}
-                              {office.phone && <p>Phone: {office.phone}</p>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    })()}
-  </div>
-)}
       </div>
     </div>
   );

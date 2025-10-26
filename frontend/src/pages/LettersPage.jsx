@@ -12,6 +12,7 @@ export default function LettersPage() {
   const [success, setSuccess] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRepFilter, setSelectedRepFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('draft'); // 'draft' or 'finalized'
 
   // Edit recipient modal
   const [showEditModal, setShowEditModal] = useState(false);
@@ -37,13 +38,16 @@ export default function LettersPage() {
     website: ''
   });
 
+  // Toggle letter status
+  const [togglingStatus, setTogglingStatus] = useState(null);
+
   useEffect(() => {
     loadLetters();
   }, []);
 
   useEffect(() => {
     filterLetters();
-  }, [letters, searchTerm, selectedRepFilter]);
+  }, [letters, searchTerm, selectedRepFilter, statusFilter]);
 
   const loadLetters = async () => {
     try {
@@ -63,6 +67,9 @@ export default function LettersPage() {
 
   const filterLetters = () => {
     let result = [...letters];
+
+    // Filter by status
+    result = result.filter(letter => letter.status === statusFilter);
 
     // Filter by search term (only search subject and recipient names, not full content for performance)
     if (searchTerm) {
@@ -182,6 +189,22 @@ export default function LettersPage() {
     }
   };
 
+  const handleToggleStatus = async (letterId, currentStatus) => {
+    try {
+      setTogglingStatus(letterId);
+      const newStatus = currentStatus === 'draft' ? 'finalized' : 'draft';
+      await lettersAPI.updateLetterStatus(letterId, newStatus);
+      await loadLetters();
+      setSuccess(`Letter marked as ${newStatus === 'finalized' ? 'sent' : 'draft'}`);
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Failed to update letter status: ' + (err.response?.data?.detail || err.message));
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setTogglingStatus(null);
+    }
+  };
+
   const startEditingRecipient = (letterId, recipient) => {
     setEditingRecipient({ letterId, ...recipient });
     setEditedContent(recipient.content || '');
@@ -293,9 +316,34 @@ export default function LettersPage() {
         </div>
       )}
 
-      {/* Search and Filter Controls */}
+      {/* Status Toggle */}
       {letters.length > 0 && (
         <div className="bg-white shadow-sm rounded-lg p-4">
+          <div className="flex items-center justify-center mb-6">
+            <div className="inline-flex items-center bg-gray-200 rounded-full p-1">
+              <button
+                onClick={() => setStatusFilter('draft')}
+                className={`px-6 py-2 rounded-full font-medium text-sm transition-all ${
+                  statusFilter === 'draft'
+                    ? 'bg-yellow-500 text-white shadow-md'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                Draft
+              </button>
+              <button
+                onClick={() => setStatusFilter('finalized')}
+                className={`px-6 py-2 rounded-full font-medium text-sm transition-all ${
+                  statusFilter === 'finalized'
+                    ? 'bg-green-500 text-white shadow-md'
+                    : 'text-gray-700 hover:text-gray-900'
+                }`}
+              >
+                Sent
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Search */}
             <div>
@@ -403,17 +451,34 @@ export default function LettersPage() {
                     })}
                   </p>
 
-                  {/* Status badge */}
-                  <div className="mt-2 flex items-center gap-3 text-xs">
-                    <span className={`px-2 py-1 rounded font-medium ${
-                      letter.status === 'finalized' ? 'bg-green-100 text-green-700' :
-                      letter.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      {letter.status}
-                    </span>
+                  {/* Status toggle */}
+                  <div className="mt-3 flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">Status:</span>
+                      <button
+                        onClick={() => handleToggleStatus(letter.id, letter.status)}
+                        disabled={togglingStatus === letter.id}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                          letter.status === 'finalized'
+                            ? 'bg-green-500 focus:ring-green-500'
+                            : 'bg-yellow-500 focus:ring-yellow-500'
+                        } ${togglingStatus === letter.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        title={`Mark as ${letter.status === 'draft' ? 'sent' : 'draft'}`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            letter.status === 'finalized' ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                      <span className={`text-sm font-medium ${
+                        letter.status === 'finalized' ? 'text-green-700' : 'text-yellow-700'
+                      }`}>
+                        {letter.status === 'finalized' ? 'Sent' : 'Draft'}
+                      </span>
+                    </div>
                     {letter.category && (
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
                         {letter.category}
                       </span>
                     )}
@@ -464,6 +529,14 @@ export default function LettersPage() {
                               >
                                 📝 Edit
                               </button>
+                              {recipient.email && (
+                                <a
+                                  href={`mailto:${recipient.email}?subject=${encodeURIComponent(recipient.subject || letter.subject)}&body=${encodeURIComponent(recipient.content || '')}`}
+                                  className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium text-center"
+                                >
+                                  ✉️ Email
+                                </a>
+                              )}
                               <button
                                 onClick={() => handleCopyLetter(recipient)}
                                 className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
-  const version = '1.0.0';
+  const version = import.meta.env.VITE_APP_VERSION || '1.0.0';
   const currentYear = new Date().getFullYear();
 
   return (

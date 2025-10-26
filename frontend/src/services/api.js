@@ -107,6 +107,7 @@ export const lettersAPI = {
       custom_prompt: customPrompt
     }),
   finalizeLetter: (id) => api.put(`/api/letters/${id}/finalize`),
+  updateLetterStatus: (id, status) => api.patch(`/api/letters/${id}/status`, { status }),
   deleteLetter: (id) => api.delete(`/api/letters/${id}`),
 
   // PDF Generation
