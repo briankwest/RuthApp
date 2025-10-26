@@ -144,3 +144,19 @@ class MessageResponse(BaseModel):
     """Simple message response"""
     message: str
     success: bool = True
+
+
+class DeleteAccountRequest(BaseModel):
+    """Account deletion request - simplified with just password"""
+    password: str
+
+
+class DeletionSummary(BaseModel):
+    """Summary of data to be deleted"""
+    email: str
+    writing_profiles_count: int
+    letters_count: int
+    draft_letters_count: int
+    finalized_letters_count: int
+    representatives_count: int
+    addresses_count: int

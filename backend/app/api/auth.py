@@ -18,6 +18,8 @@ from app.schemas.auth import (
     AuthResponse,
     UserResponse,
     MessageResponse,
+    DeleteAccountRequest,
+    DeletionSummary,
 )
 from pydantic import BaseModel, EmailStr
 from typing import Optional
@@ -259,3 +261,155 @@ async def update_profile(
     await db.refresh(current_user)
 
     return UserResponse.from_orm(current_user)
+
+
+@router.get("/me/deletion-summary", response_model=DeletionSummary)
+async def get_deletion_summary(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_async_session)
+):
+    """
+    Get a summary of data that will be deleted with account
+
+    Returns counts of all user-related data:
+    - Writing profiles
+    - Letters (total, draft, finalized)
+    - Saved representatives
+    - Addresses
+    """
+    from sqlalchemy import select, func
+    from app.models.letter import Letter, UserWritingProfile
+    from app.models.user import UserAddress, user_representatives
+
+    # Count writing profiles
+    writing_profiles_result = await db.execute(
+        select(func.count()).select_from(UserWritingProfile).where(UserWritingProfile.user_id == current_user.id)
+    )
+    writing_profiles_count = writing_profiles_result.scalar() or 0
+
+    # Count total letters
+    letters_result = await db.execute(
+        select(func.count()).select_from(Letter).where(Letter.user_id == current_user.id)
+    )
+    letters_count = letters_result.scalar() or 0
+
+    # Count draft letters
+    draft_letters_result = await db.execute(
+        select(func.count()).select_from(Letter).where(
+            Letter.user_id == current_user.id,
+            Letter.status == "draft"
+        )
+    )
+    draft_letters_count = draft_letters_result.scalar() or 0
+
+    # Count finalized letters
+    finalized_letters_result = await db.execute(
+        select(func.count()).select_from(Letter).where(
+            Letter.user_id == current_user.id,
+            Letter.status == "finalized"
+        )
+    )
+    finalized_letters_count = finalized_letters_result.scalar() or 0
+
+    # Count saved representatives
+    representatives_result = await db.execute(
+        select(func.count()).select_from(user_representatives).where(
+            user_representatives.c.user_id == current_user.id
+        )
+    )
+    representatives_count = representatives_result.scalar() or 0
+
+    # Count addresses
+    addresses_result = await db.execute(
+        select(func.count()).select_from(UserAddress).where(UserAddress.user_id == current_user.id)
+    )
+    addresses_count = addresses_result.scalar() or 0
+
+    return DeletionSummary(
+        email=current_user.email,
+        writing_profiles_count=writing_profiles_count,
+        letters_count=letters_count,
+        draft_letters_count=draft_letters_count,
+        finalized_letters_count=finalized_letters_count,
+        representatives_count=representatives_count,
+        addresses_count=addresses_count
+    )
+
+
+@router.delete("/me", response_model=MessageResponse)
+async def delete_account(
+    request: DeleteAccountRequest,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_async_session)
+):
+    """
+    Permanently delete user account and all associated data
+
+    This action is immediate and cannot be undone.
+    Requires password confirmation for security.
+
+    Deletes:
+    - All letters and letter recipients
+    - All writing profiles
+    - All saved representatives associations
+    - All user addresses
+    - User account itself
+    """
+    from sqlalchemy import delete, select
+    from app.models.letter import Letter, LetterRecipient, UserWritingProfile
+    from app.models.user import UserAddress, user_representatives
+    from app.core.security import verify_password
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    # Verify password
+    if not verify_password(request.password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid password"
+        )
+
+    try:
+        # All deletions in a single transaction (session already has transaction from dependency)
+        # 1. Delete letter recipients first (foreign key to letters)
+        # Get all letter IDs for this user
+        letters_subquery = select(Letter.id).where(Letter.user_id == current_user.id).scalar_subquery()
+
+        await db.execute(
+            delete(LetterRecipient).where(LetterRecipient.letter_id.in_(letters_subquery))
+        )
+
+        # 2. Delete letters
+        await db.execute(delete(Letter).where(Letter.user_id == current_user.id))
+
+        # 3. Delete saved representatives (junction table)
+        await db.execute(delete(user_representatives).where(user_representatives.c.user_id == current_user.id))
+
+        # 4. Delete user addresses
+        await db.execute(delete(UserAddress).where(UserAddress.user_id == current_user.id))
+
+        # 5. Delete writing profiles
+        await db.execute(delete(UserWritingProfile).where(UserWritingProfile.user_id == current_user.id))
+
+        # 6. Delete user account
+        await db.execute(delete(User).where(User.id == current_user.id))
+
+        # Commit all deletions
+        await db.commit()
+
+        # Log deletion (without PII) for audit trail
+        logger.info(f"User account deleted: user_id={current_user.id}, email_domain={current_user.email.split('@')[1] if '@' in current_user.email else 'unknown'}")
+
+        return MessageResponse(
+            message="Account deleted successfully",
+            success=True
+        )
+
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Failed to delete account for user_id={current_user.id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete account. Please try again later."
+        )

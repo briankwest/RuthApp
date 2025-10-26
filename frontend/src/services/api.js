@@ -61,6 +61,8 @@ export const authAPI = {
   logout: () => api.post('/api/auth/logout'),
   getProfile: () => api.get('/api/auth/me'),
   updateProfile: (data) => api.put('/api/auth/profile', data),
+  getDeletionSummary: () => api.get('/api/auth/me/deletion-summary'),
+  deleteAccount: (password) => api.delete('/api/auth/me', { data: { password } }),
 };
 
 // Representatives API

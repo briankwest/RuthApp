@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { repsAPI, authAPI } from '../services/api';
 import useAuthStore from '../stores/authStore';
 import Toast from '../components/Toast';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 import voteRegistrationData from '../data/vote.json';
 
 export default function ProfilePage() {
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, logout } = useAuthStore();
+  const navigate = useNavigate();
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [confirmDeleteAddress, setConfirmDeleteAddress] = useState(null); // Track which address to delete
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deletionSummary, setDeletionSummary] = useState(null);
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -134,6 +139,24 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenDeleteAccountModal = async () => {
+    try {
+      const response = await authAPI.getDeletionSummary();
+      setDeletionSummary(response.data);
+      setShowDeleteAccountModal(true);
+    } catch (err) {
+      setError('Failed to load account information');
+    }
+  };
+
+  const handleAccountDeleted = () => {
+    setSuccess('Account deleted successfully. Goodbye!');
+    setTimeout(() => {
+      logout();
+      navigate('/');
+    }, 2000);
   };
 
   return (
@@ -434,6 +457,40 @@ export default function ProfilePage() {
           </form>
         </div>
       </div>
+
+      {/* Danger Zone - Account Deletion */}
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 border-2 border-red-300 dark:border-red-700">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 text-2xl">🚨</div>
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">
+              Danger Zone
+            </h2>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Delete Account
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Permanently delete your account and all associated data. This action <strong>cannot be undone</strong>.
+            </p>
+            <button
+              onClick={handleOpenDeleteAccountModal}
+              className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-bold transition-colors"
+            >
+              Delete My Account
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteAccountModal && deletionSummary && (
+        <DeleteAccountModal
+          isOpen={showDeleteAccountModal}
+          onClose={() => setShowDeleteAccountModal(false)}
+          onSuccess={handleAccountDeleted}
+          deletionSummary={deletionSummary}
+        />
+      )}
     </div>
   );
 }
