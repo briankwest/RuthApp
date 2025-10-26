@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../stores/authStore';
 import Footer from './Footer';
+import InstallPrompt from './InstallPrompt';
 import {
   HomeIcon,
   UsersIcon,
@@ -159,6 +160,9 @@ export default function Layout() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Install Prompt */}
+      <InstallPrompt />
     </div>
   );
 }
