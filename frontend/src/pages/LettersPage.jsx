@@ -274,14 +274,14 @@ export default function LettersPage() {
       {success && <Toast message={success} type="success" onClose={() => setSuccess('')} />}
       {error && <Toast message={error} type="error" onClose={() => setError('')} />}
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">My Letters</h1>
           <p className="mt-2 text-gray-600">View and manage all your advocacy letters</p>
         </div>
         <Link
           to="/letters/new"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium w-full sm:w-auto text-center"
         >
           Write New Letter
         </Link>
@@ -442,7 +442,7 @@ export default function LettersPage() {
                       const wordCount = recipient.content ? recipient.content.split(/\s+/).filter(w => w).length : 0;
                       return (
                         <div key={recipient.id} className="p-3 bg-white rounded border border-gray-200">
-                          <div className="flex items-start justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                             <div className="flex-1">
                               <div className="font-medium text-gray-900">{recipient.name}</div>
                               <div className="text-sm text-gray-600">{recipient.title}</div>
@@ -457,7 +457,7 @@ export default function LettersPage() {
                                 </div>
                               )}
                             </div>
-                            <div className="flex gap-2 ml-4">
+                            <div className="grid grid-cols-2 sm:flex gap-2">
                               <button
                                 onClick={() => startEditingRecipient(letter.id, recipient)}
                                 className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"

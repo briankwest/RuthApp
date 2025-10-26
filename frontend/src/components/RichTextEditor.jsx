@@ -183,13 +183,13 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           I
         </button>
 
-        <div className="w-px bg-gray-300 mx-1"></div>
+        <div className="hidden sm:block w-px bg-gray-300 mx-1"></div>
 
-        {/* Heading Buttons */}
+        {/* Heading Buttons - Hidden on mobile */}
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={`px-3 py-1 text-sm rounded ${
+          className={`hidden sm:inline-flex px-3 py-1 text-sm rounded ${
             editor.isActive('heading', { level: 1 })
               ? 'bg-blue-600 text-white'
               : 'bg-white border border-gray-300 hover:bg-gray-100'
@@ -200,7 +200,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`px-3 py-1 text-sm rounded ${
+          className={`hidden sm:inline-flex px-3 py-1 text-sm rounded ${
             editor.isActive('heading', { level: 2 })
               ? 'bg-blue-600 text-white'
               : 'bg-white border border-gray-300 hover:bg-gray-100'
@@ -209,7 +209,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
           H2
         </button>
 
-        <div className="w-px bg-gray-300 mx-1"></div>
+        <div className="hidden sm:block w-px bg-gray-300 mx-1"></div>
 
         {/* List Buttons */}
         <button
@@ -253,7 +253,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
         <div className="flex-grow"></div>
 
         {/* AI Assistance Buttons */}
-        <div className="flex gap-2 border-l border-gray-300 pl-2">
+        <div className="flex flex-wrap gap-2 border-l border-gray-300 pl-2">
           <button
             type="button"
             onClick={() => handleAIImprovement('grammar')}
@@ -266,7 +266,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
             type="button"
             onClick={() => handleAIImprovement('persuasive')}
             disabled={aiLoading}
-            className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="hidden sm:inline-flex px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {aiLoading && aiType === 'persuasive' ? '...' : '💪 More Persuasive'}
           </button>
@@ -274,7 +274,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
             type="button"
             onClick={() => handleAIImprovement('shorten')}
             disabled={aiLoading}
-            className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="hidden sm:inline-flex px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {aiLoading && aiType === 'shorten' ? '...' : '📉 Shorten'}
           </button>
@@ -282,7 +282,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter l
             type="button"
             onClick={() => handleAIImprovement('expand')}
             disabled={aiLoading}
-            className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="hidden sm:inline-flex px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {aiLoading && aiType === 'expand' ? '...' : '📈 Expand'}
           </button>

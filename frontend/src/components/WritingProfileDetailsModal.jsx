@@ -189,7 +189,7 @@ export default function WritingProfileDetailsModal({ profile, onClose, onEdit })
             <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
               📝 Content Preferences
             </h3>
-            <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-2 gap-3">
+            <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex items-center gap-2">
                 <span className={`text-xl ${profile.include_personal_stories ? 'text-green-600' : 'text-gray-300'}`}>
                   {profile.include_personal_stories ? '✓' : '○'}

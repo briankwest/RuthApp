@@ -442,7 +442,7 @@ export default function LetterWizard() {
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Article URLs
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="url"
             value={currentUrl}
@@ -453,7 +453,7 @@ export default function LetterWizard() {
           />
           <button
             onClick={addArticleUrl}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full sm:w-auto"
           >
             Add
           </button>

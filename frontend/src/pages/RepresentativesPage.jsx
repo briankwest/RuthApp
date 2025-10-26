@@ -31,7 +31,7 @@ function RepresentativeCard({ rep, onSave }) {
 
   return (
     <div className="p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col sm:flex-row items-start gap-4">
         {/* Photo */}
         {rep.photo_url && !imageError ? (
           <img
@@ -45,8 +45,8 @@ function RepresentativeCard({ rep, onSave }) {
         )}
 
         {/* Main Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0 w-full">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div>
               <h3 className="text-lg font-bold text-gray-900">{rep.name}</h3>
               <p className="text-sm font-medium text-gray-700">{rep.title}</p>
@@ -57,7 +57,7 @@ function RepresentativeCard({ rep, onSave }) {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md disabled:opacity-50 w-full sm:w-auto"
             >
               {saving ? 'Saving...' : 'Save for Letters'}
             </button>

@@ -344,33 +344,54 @@ export default function WritingProfileWizard({ onClose, onSuccess, editMode = fa
     ];
 
     return (
-      <div className="flex items-center justify-between mb-8 overflow-x-auto">
-        {steps.map((step, idx) => (
-          <div key={step.num} className="flex items-center flex-shrink-0">
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${
-                  currentStep === step.num
-                    ? 'bg-blue-600 text-white'
-                    : currentStep > step.num
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-600'
-                }`}
-              >
-                {currentStep > step.num ? '✓' : step.num}
-              </div>
-              <span className="text-[10px] mt-1 text-gray-600 text-center">{step.label}</span>
-            </div>
-            {idx < steps.length - 1 && (
-              <div
-                className={`h-0.5 w-6 mx-1 ${
-                  currentStep > step.num ? 'bg-green-500' : 'bg-gray-200'
-                }`}
-              />
-            )}
+      <>
+        {/* Mobile: Condensed step indicator */}
+        <div className="md:hidden mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">
+              Step {currentStep} of {steps.length}: {steps[currentStep - 1].label}
+            </span>
+            <span className="text-xs text-gray-500">
+              {Math.round((currentStep / steps.length) * 100)}%
+            </span>
           </div>
-        ))}
-      </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / steps.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Desktop: Full step indicator */}
+        <div className="hidden md:flex items-center justify-between mb-8 overflow-x-auto">
+          {steps.map((step, idx) => (
+            <div key={step.num} className="flex items-center flex-shrink-0">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${
+                    currentStep === step.num
+                      ? 'bg-blue-600 text-white'
+                      : currentStep > step.num
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {currentStep > step.num ? '✓' : step.num}
+                </div>
+                <span className="text-[10px] mt-1 text-gray-600 text-center">{step.label}</span>
+              </div>
+              {idx < steps.length - 1 && (
+                <div
+                  className={`h-0.5 w-6 mx-1 ${
+                    currentStep > step.num ? 'bg-green-500' : 'bg-gray-200'
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </>
     );
   };
 
@@ -691,7 +712,7 @@ export default function WritingProfileWizard({ onClose, onSuccess, editMode = fa
   };
 
   const renderStep7 = () => (
-    <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
+    <div className="space-y-6 max-h-[300px] sm:max-h-[500px] overflow-y-auto pr-2">
       <div>
         <h3 className="text-xl font-bold text-gray-900 mb-2">Representative Engagement Strategy</h3>
         <p className="text-gray-600">How should letters be framed based on representative alignment?</p>
@@ -974,7 +995,7 @@ export default function WritingProfileWizard({ onClose, onSuccess, editMode = fa
     const selectedIssues = Object.keys(formData.issue_positions);
 
     return (
-      <div className="space-y-6 max-h-[500px] overflow-y-auto">
+      <div className="space-y-6 max-h-[300px] sm:max-h-[500px] overflow-y-auto">
         <div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Review Your Profile</h3>
           <p className="text-gray-600">Review your writing profile before saving.</p>

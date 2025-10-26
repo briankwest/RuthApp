@@ -91,7 +91,7 @@ export default function WritingProfilesPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Writing Profiles</h1>
           <p className="mt-2 text-gray-600">
@@ -100,7 +100,7 @@ export default function WritingProfilesPage() {
         </div>
         <button
           onClick={() => setShowCreateWizard(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium w-full sm:w-auto"
         >
           Create New Profile
         </button>
