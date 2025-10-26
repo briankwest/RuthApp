@@ -49,6 +49,15 @@ class VoiceProfileCreate(BaseModel):
     avoid_phrases: Optional[List[str]] = Field(default_factory=list)
     is_default: bool = Field(default=False)
 
+    # Enhanced fields
+    issue_positions: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    abortion_position: Optional[str] = None
+    core_values: Optional[List[str]] = Field(default_factory=list)
+    argumentative_frameworks: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    representative_engagement: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    regional_context: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    compromise_positioning: Optional[Dict[str, Any]] = Field(default_factory=dict)
+
 
 class VoiceProfileUpdate(BaseModel):
     """Request model for updating a writing profile"""
@@ -66,6 +75,15 @@ class VoiceProfileUpdate(BaseModel):
     signature_phrases: Optional[List[str]] = None
     avoid_phrases: Optional[List[str]] = None
     is_default: Optional[bool] = None
+
+    # Enhanced fields
+    issue_positions: Optional[Dict[str, Any]] = None
+    abortion_position: Optional[str] = None
+    core_values: Optional[List[str]] = None
+    argumentative_frameworks: Optional[Dict[str, Any]] = None
+    representative_engagement: Optional[Dict[str, Any]] = None
+    regional_context: Optional[Dict[str, Any]] = None
+    compromise_positioning: Optional[Dict[str, Any]] = None
 
 
 class VoiceProfileResponse(BaseModel):
@@ -89,6 +107,15 @@ class VoiceProfileResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     last_used_at: Optional[datetime]
+
+    # Enhanced fields
+    issue_positions: Optional[Dict[str, Any]] = None
+    abortion_position: Optional[str] = None
+    core_values: Optional[List[str]] = None
+    argumentative_frameworks: Optional[Dict[str, Any]] = None
+    representative_engagement: Optional[Dict[str, Any]] = None
+    regional_context: Optional[Dict[str, Any]] = None
+    compromise_positioning: Optional[Dict[str, Any]] = None
 
 
 class AnalyzeVoiceRequest(BaseModel):
@@ -232,7 +259,15 @@ async def create_writing_profile(
             political_leaning=profile_data.political_leaning,
             key_issues=profile_data.key_issues or [],
             signature_phrases=profile_data.signature_phrases or analysis.get('signature_phrases', []),
-            avoid_phrases=profile_data.avoid_phrases or []
+            avoid_phrases=profile_data.avoid_phrases or [],
+            # Enhanced fields
+            issue_positions=profile_data.issue_positions or {},
+            abortion_position=profile_data.abortion_position,
+            core_values=profile_data.core_values or [],
+            argumentative_frameworks=profile_data.argumentative_frameworks or {},
+            representative_engagement=profile_data.representative_engagement or {},
+            regional_context=profile_data.regional_context or {},
+            compromise_positioning=profile_data.compromise_positioning or {}
         )
 
         # Generate AI system prompt
@@ -262,7 +297,15 @@ async def create_writing_profile(
             key_issues=profile.key_issues,
             created_at=profile.created_at,
             updated_at=profile.updated_at,
-            last_used_at=profile.last_used_at
+            last_used_at=profile.last_used_at,
+            # Enhanced fields
+            issue_positions=profile.issue_positions,
+            abortion_position=profile.abortion_position,
+            core_values=profile.core_values,
+            argumentative_frameworks=profile.argumentative_frameworks,
+            representative_engagement=profile.representative_engagement,
+            regional_context=profile.regional_context,
+            compromise_positioning=profile.compromise_positioning
         )
 
     except Exception as e:
@@ -306,7 +349,15 @@ async def list_writing_profiles(
             key_issues=profile.key_issues or [],
             created_at=profile.created_at,
             updated_at=profile.updated_at,
-            last_used_at=profile.last_used_at
+            last_used_at=profile.last_used_at,
+            # Enhanced fields
+            issue_positions=profile.issue_positions or {},
+            abortion_position=profile.abortion_position,
+            core_values=profile.core_values or [],
+            argumentative_frameworks=profile.argumentative_frameworks or {},
+            representative_engagement=profile.representative_engagement or {},
+            regional_context=profile.regional_context or {},
+            compromise_positioning=profile.compromise_positioning or {}
         )
         for profile in profiles
     ]
@@ -354,7 +405,15 @@ async def get_writing_profile(
         key_issues=profile.key_issues or [],
         created_at=profile.created_at,
         updated_at=profile.updated_at,
-        last_used_at=profile.last_used_at
+        last_used_at=profile.last_used_at,
+        # Enhanced fields
+        issue_positions=profile.issue_positions or {},
+        abortion_position=profile.abortion_position,
+        core_values=profile.core_values or [],
+        argumentative_frameworks=profile.argumentative_frameworks or {},
+        representative_engagement=profile.representative_engagement or {},
+        regional_context=profile.regional_context or {},
+        compromise_positioning=profile.compromise_positioning or {}
     )
 
 
@@ -439,7 +498,15 @@ async def update_writing_profile(
         key_issues=profile.key_issues or [],
         created_at=profile.created_at,
         updated_at=profile.updated_at,
-        last_used_at=profile.last_used_at
+        last_used_at=profile.last_used_at,
+        # Enhanced fields
+        issue_positions=profile.issue_positions or {},
+        abortion_position=profile.abortion_position,
+        core_values=profile.core_values or [],
+        argumentative_frameworks=profile.argumentative_frameworks or {},
+        representative_engagement=profile.representative_engagement or {},
+        regional_context=profile.regional_context or {},
+        compromise_positioning=profile.compromise_positioning or {}
     )
 
 
