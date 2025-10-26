@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { lettersAPI } from '../services/api';
 import useAuthStore from '../stores/authStore';
 import WritingProfileWizard from '../components/WritingProfileWizard';
+import WritingProfileDetailsModal from '../components/WritingProfileDetailsModal';
 
 export default function WritingProfilesPage() {
   const { user } = useAuthStore();
@@ -10,6 +11,10 @@ export default function WritingProfilesPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showCreateWizard, setShowCreateWizard] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
+  const [showEditWizard, setShowEditWizard] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(null);
 
   useEffect(() => {
     loadProfiles();
@@ -55,6 +60,25 @@ export default function WritingProfilesPage() {
       setError(err.response?.data?.detail || 'Failed to set default');
       setTimeout(() => setError(''), 3000);
     }
+  };
+
+  const handleViewDetails = (profile) => {
+    setSelectedProfile(profile);
+    setShowDetailsModal(true);
+  };
+
+  const handleEditFromDetails = () => {
+    setEditingProfile(selectedProfile);
+    setShowDetailsModal(false);
+    setShowEditWizard(true);
+  };
+
+  const handleEditSuccess = () => {
+    setSuccess('Writing profile updated successfully!');
+    setTimeout(() => setSuccess(''), 3000);
+    loadProfiles();
+    setShowEditWizard(false);
+    setEditingProfile(null);
   };
 
   if (loading) {
@@ -186,21 +210,29 @@ export default function WritingProfilesPage() {
                 )}
               </div>
 
-              <div className="mt-6 flex items-center gap-2">
-                {!profile.is_default && (
-                  <button
-                    onClick={() => handleSetDefault(profile.id)}
-                    className="flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-                  >
-                    Set Default
-                  </button>
-                )}
+              <div className="mt-6 space-y-2">
                 <button
-                  onClick={() => handleDelete(profile.id)}
-                  className="flex-1 px-3 py-2 text-sm border border-red-300 text-red-700 rounded-md hover:bg-red-50"
+                  onClick={() => handleViewDetails(profile)}
+                  className="w-full px-3 py-2 text-sm border border-blue-300 text-blue-700 rounded-md hover:bg-blue-50 font-medium"
                 >
-                  Delete
+                  View Details
                 </button>
+                <div className="flex items-center gap-2">
+                  {!profile.is_default && (
+                    <button
+                      onClick={() => handleSetDefault(profile.id)}
+                      className="flex-1 px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                    >
+                      Set Default
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDelete(profile.id)}
+                    className="flex-1 px-3 py-2 text-sm border border-red-300 text-red-700 rounded-md hover:bg-red-50"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -215,6 +247,29 @@ export default function WritingProfilesPage() {
             setTimeout(() => setSuccess(''), 3000);
             loadProfiles();
           }}
+        />
+      )}
+
+      {showDetailsModal && selectedProfile && (
+        <WritingProfileDetailsModal
+          profile={selectedProfile}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedProfile(null);
+          }}
+          onEdit={handleEditFromDetails}
+        />
+      )}
+
+      {showEditWizard && editingProfile && (
+        <WritingProfileWizard
+          editMode={true}
+          existingProfile={editingProfile}
+          onClose={() => {
+            setShowEditWizard(false);
+            setEditingProfile(null);
+          }}
+          onSuccess={handleEditSuccess}
         />
       )}
     </div>

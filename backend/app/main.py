@@ -84,6 +84,28 @@ app = FastAPI(
 
 # Add middleware
 
+# Request logging middleware with real client IP
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """
+    Log all requests with real client IP from proxy headers
+    """
+    # Get real client IP from proxy headers
+    forwarded_for = request.headers.get("X-Forwarded-For", "")
+    real_ip = request.headers.get("X-Real-IP", "")
+    client_ip = forwarded_for.split(",")[0] if forwarded_for else real_ip or request.client.host
+
+    # Get protocol
+    forwarded_proto = request.headers.get("X-Forwarded-Proto", "http")
+
+    logger.info(
+        f'{client_ip} - "{request.method} {request.url.path}" - '
+        f'Proto: {forwarded_proto} - User-Agent: {request.headers.get("user-agent", "")[:50]}'
+    )
+
+    response = await call_next(request)
+    return response
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { lettersAPI } from '../services/api';
 import useAuthStore from '../stores/authStore';
 
-export default function WritingProfileWizard({ onClose, onSuccess }) {
+export default function WritingProfileWizard({ onClose, onSuccess, editMode = false, existingProfile = null }) {
   const { user } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -63,6 +63,38 @@ export default function WritingProfileWizard({ onClose, onSuccess }) {
   useEffect(() => {
     loadPoliticalData();
   }, []);
+
+  // Pre-populate form data when in edit mode
+  useEffect(() => {
+    if (editMode && existingProfile) {
+      setFormData({
+        name: existingProfile.name || '',
+        description: existingProfile.description || '',
+        political_leaning: existingProfile.political_leaning || '',
+        issue_positions: existingProfile.issue_positions || {},
+        abortion_position: existingProfile.abortion_position || '',
+        core_values: existingProfile.core_values || [],
+        preferred_tone: existingProfile.preferred_tone || 'professional',
+        additional_context: '',
+        argumentative_frameworks: existingProfile.argumentative_frameworks || {},
+        representative_engagement: existingProfile.representative_engagement || {
+          aligned_approach: '',
+          opposing_approach: '',
+          bipartisan_framing: ''
+        },
+        regional_context: existingProfile.regional_context || {
+          state_concerns: '',
+          community_type: ''
+        },
+        compromise_positioning: existingProfile.compromise_positioning || {
+          incremental_progress: '',
+          bipartisan_preference: ''
+        },
+        writing_samples: existingProfile.writing_samples || []
+      });
+      setSelectedDescription(existingProfile.description || '');
+    }
+  }, [editMode, existingProfile]);
 
   const loadPoliticalData = async () => {
     try {
@@ -265,7 +297,7 @@ export default function WritingProfileWizard({ onClose, onSuccess }) {
     setError('');
 
     try {
-      await lettersAPI.createWritingProfile({
+      const profileData = {
         name: formData.name,
         description: selectedDescription,
         political_leaning: formData.political_leaning,
@@ -278,13 +310,19 @@ export default function WritingProfileWizard({ onClose, onSuccess }) {
         regional_context: formData.regional_context,
         compromise_positioning: formData.compromise_positioning,
         writing_samples: formData.writing_samples,
-        is_default: false
-      });
+        is_default: editMode ? existingProfile.is_default : false
+      };
+
+      if (editMode && existingProfile) {
+        await lettersAPI.updateWritingProfile(existingProfile.id, profileData);
+      } else {
+        await lettersAPI.createWritingProfile(profileData);
+      }
 
       onSuccess();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create profile');
+      setError(err.response?.data?.detail || `Failed to ${editMode ? 'update' : 'create'} profile`);
       console.error(err);
     } finally {
       setLoading(false);
@@ -1121,7 +1159,10 @@ export default function WritingProfileWizard({ onClose, onSuccess }) {
                 disabled={loading}
                 className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium disabled:opacity-50"
               >
-                {loading ? 'Creating...' : 'Create Profile'}
+                {loading
+                  ? (editMode ? 'Saving...' : 'Creating...')
+                  : (editMode ? 'Save Changes' : 'Create Profile')
+                }
               </button>
             )}
           </div>
