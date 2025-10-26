@@ -181,6 +181,18 @@ export default function WritingProfileWizard({ onClose, onSuccess, editMode = fa
     setError('');
   };
 
+  const isNextButtonDisabled = () => {
+    // Check if Next button should be disabled for current step
+    if (loading) return true;
+
+    // Step 8: Disable until descriptions are generated
+    if (currentStep === 8 && !aiDescriptions) {
+      return true;
+    }
+
+    return false;
+  };
+
   const validateCurrentStep = () => {
     switch (currentStep) {
       case 1:
@@ -238,8 +250,12 @@ export default function WritingProfileWizard({ onClose, onSuccess, editMode = fa
         }
         return true;
       case 8:
+        if (!aiDescriptions) {
+          setError('Please generate descriptions for your profile');
+          return false;
+        }
         if (!selectedDescription.trim()) {
-          setError('Please generate and select a profile description');
+          setError('Please select a profile description');
           return false;
         }
         return true;
@@ -871,6 +887,11 @@ export default function WritingProfileWizard({ onClose, onSuccess, editMode = fa
           <p className="text-sm text-gray-600 mt-3">
             This will create 3 variations of your writing profile for you to choose from.
           </p>
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p className="text-sm text-yellow-800">
+              ⚠️ You must generate descriptions before proceeding to the next step
+            </p>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -1167,8 +1188,8 @@ export default function WritingProfileWizard({ onClose, onSuccess, editMode = fa
             {currentStep < 10 && (
               <button
                 onClick={nextStep}
-                disabled={loading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                disabled={isNextButtonDisabled()}
+                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>

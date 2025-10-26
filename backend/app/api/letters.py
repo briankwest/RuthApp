@@ -30,6 +30,30 @@ router = APIRouter(prefix="/api/letters", tags=["letters"])
 logger = logging.getLogger(__name__)
 
 
+def convert_legacy_attributes(attributes: Any) -> Dict[str, float]:
+    """
+    Convert legacy list format attributes to dict format.
+
+    Args:
+        attributes: Can be dict, list, or None
+
+    Returns:
+        Dict with attribute keys and scores
+    """
+    if not attributes:
+        return {}
+
+    # If already a dict, return as is
+    if isinstance(attributes, dict):
+        return attributes
+
+    # If it's a list (legacy format), convert to dict with default scores
+    if isinstance(attributes, list):
+        return {attr: 0.8 for attr in attributes}
+
+    return {}
+
+
 # ==================== Request/Response Models ====================
 
 class VoiceProfileCreate(BaseModel):
@@ -96,6 +120,7 @@ class VoiceProfileResponse(BaseModel):
     tone_attributes: Dict[str, Any]
     style_attributes: Dict[str, Any]
     vocabulary_level: str
+    writing_samples: List[str] = Field(default_factory=list)
     preferred_tone: str
     preferred_length: str
     include_personal_stories: bool
@@ -287,6 +312,7 @@ async def create_writing_profile(
             tone_attributes=profile.tone_attributes,
             style_attributes=profile.style_attributes,
             vocabulary_level=profile.vocabulary_level,
+            writing_samples=profile.writing_samples or [],
             preferred_tone=profile.preferred_tone,
             preferred_length=profile.preferred_length,
             include_personal_stories=profile.include_personal_stories,
@@ -336,9 +362,10 @@ async def list_writing_profiles(
             description=profile.description,
             is_default=profile.is_default,
             is_active=profile.is_active,
-            tone_attributes=profile.tone_attributes or {},
-            style_attributes=profile.style_attributes or {},
+            tone_attributes=convert_legacy_attributes(profile.tone_attributes),
+            style_attributes=convert_legacy_attributes(profile.style_attributes),
             vocabulary_level=profile.vocabulary_level,
+            writing_samples=profile.writing_samples or [],
             preferred_tone=profile.preferred_tone,
             preferred_length=profile.preferred_length,
             include_personal_stories=profile.include_personal_stories,
@@ -392,9 +419,10 @@ async def get_writing_profile(
         description=profile.description,
         is_default=profile.is_default,
         is_active=profile.is_active,
-        tone_attributes=profile.tone_attributes or {},
-        style_attributes=profile.style_attributes or {},
+        tone_attributes=convert_legacy_attributes(profile.tone_attributes),
+        style_attributes=convert_legacy_attributes(profile.style_attributes),
         vocabulary_level=profile.vocabulary_level,
+        writing_samples=profile.writing_samples or [],
         preferred_tone=profile.preferred_tone,
         preferred_length=profile.preferred_length,
         include_personal_stories=profile.include_personal_stories,
@@ -488,6 +516,7 @@ async def update_writing_profile(
         tone_attributes=profile.tone_attributes or {},
         style_attributes=profile.style_attributes or {},
         vocabulary_level=profile.vocabulary_level,
+        writing_samples=profile.writing_samples or [],
         preferred_tone=profile.preferred_tone,
         preferred_length=profile.preferred_length,
         include_personal_stories=profile.include_personal_stories,

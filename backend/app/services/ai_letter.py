@@ -234,23 +234,29 @@ Please provide:
 
 Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, signature_phrases, key_themes, personality_description"""
 
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
+            # Build request parameters
+            request_params = {
+                "model": self.model,
+                "messages": [
                     {"role": "system", "content": "You are an expert writing analyst."},
                     {"role": "user", "content": prompt.format(samples=combined_samples)}
                 ],
-                temperature=0.3,
-                response_format={"type": "json_object"}
-            )
+                "temperature": 0.3
+            }
+
+            # Only add response_format if model supports it (not o1 models)
+            if not self.model.startswith("o1"):
+                request_params["response_format"] = {"type": "json_object"}
+
+            response = await self.client.chat.completions.create(**request_params)
 
             return json.loads(response.choices[0].message.content)
 
         except Exception as e:
             logger.error(f"Error analyzing writing samples: {e}")
             return {
-                "tone_attributes": ["professional"],
-                "style_attributes": ["balanced"],
+                "tone_attributes": {"professional": 0.8, "formal": 0.6},
+                "style_attributes": {"balanced": 0.8, "clear": 0.7},
                 "vocabulary_level": "standard",
                 "signature_phrases": [],
                 "key_themes": [],
@@ -265,26 +271,52 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
         # If no analysis provided, use stored attributes
         if not analysis:
             analysis = {
-                "tone_attributes": writing_profile.tone_attributes or ["professional"],
-                "style_attributes": writing_profile.style_attributes or ["balanced"],
+                "tone_attributes": writing_profile.tone_attributes or {"professional": 0.8},
+                "style_attributes": writing_profile.style_attributes or {"balanced": 0.8},
                 "vocabulary_level": writing_profile.vocabulary_level or "standard",
                 "signature_phrases": writing_profile.signature_phrases or [],
                 "personality_description": writing_profile.description or "Professional voice"
             }
+
+        # Convert tone and style attributes to strings (handle both dict and legacy list format)
+        tone_attrs = analysis.get('tone_attributes', {})
+        if isinstance(tone_attrs, dict):
+            tone_str = ', '.join(tone_attrs.keys())
+        else:
+            # Legacy list format
+            tone_str = ', '.join(tone_attrs) if tone_attrs else 'professional'
+
+        style_attrs = analysis.get('style_attributes', {})
+        if isinstance(style_attrs, dict):
+            style_str = ', '.join(style_attrs.keys())
+        else:
+            # Legacy list format
+            style_str = ', '.join(style_attrs) if style_attrs else 'balanced'
 
         # Build the comprehensive voice prompt
         prompt_parts = [
             f"You are writing as {writing_profile.name}, with the following comprehensive voice profile:",
             f"\n=== PERSONALITY & STYLE ===",
             f"Description: {analysis.get('personality_description', writing_profile.description)}",
-            f"Tone: {', '.join(analysis.get('tone_attributes', ['professional']))}",
-            f"Style: {', '.join(analysis.get('style_attributes', ['balanced']))}",
+            f"Tone: {tone_str}",
+            f"Style: {style_str}",
             f"Vocabulary: {analysis.get('vocabulary_level', 'standard')} level"
         ]
 
+        # Writing samples - provide actual examples of the user's writing
+        if writing_profile.writing_samples and len(writing_profile.writing_samples) > 0:
+            prompt_parts.append(f"\n=== WRITING SAMPLES (Your Voice Examples) ===")
+            prompt_parts.append("Study these examples of your past writing to match the voice, tone, and style:")
+            for idx, sample in enumerate(writing_profile.writing_samples[:3], 1):  # Limit to first 3 to avoid token overload
+                # Truncate very long samples
+                truncated_sample = sample[:500] + "..." if len(sample) > 500 else sample
+                prompt_parts.append(f"\nExample {idx}:")
+                prompt_parts.append(f'"{truncated_sample}"')
+            prompt_parts.append("\nMimic the writing style, sentence structure, and vocabulary patterns from these examples.")
+
         # Political leaning
         if writing_profile.political_leaning:
-            prompt_parts.append(f"Political Perspective: {writing_profile.political_leaning}")
+            prompt_parts.append(f"\nPolitical Perspective: {writing_profile.political_leaning}")
 
         # Core values
         if writing_profile.core_values and len(writing_profile.core_values) > 0:
