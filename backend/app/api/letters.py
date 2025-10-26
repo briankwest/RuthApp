@@ -1338,6 +1338,7 @@ async def generate_letter(
                     'city': rep.address.get('city', ''),
                     'state': rep.address.get('state', ''),
                     'zip': rep.address.get('zip', ''),
+                    'email': rep.email or '',
                     'website': rep.website or ''
                 },
                 personalized_subject=personalized_subject,
@@ -1380,7 +1381,9 @@ async def generate_letter(
                     'title': r.recipient_title,
                     'office_type': r.recipient_office_type,
                     'personalized_subject': r.personalized_subject,
-                    'personalized_content': r.personalized_content
+                    'personalized_content': r.personalized_content,
+                    'email': r.recipient_address.get('email', '') if r.recipient_address else '',
+                    'website': r.recipient_address.get('website', '') if r.recipient_address else ''
                 }
                 for r in recipients
             ],
@@ -1738,6 +1741,8 @@ async def get_letter(
                 'office_type': r.recipient_office_type,
                 'personalized_subject': r.personalized_subject,
                 'personalized_content': r.personalized_content,
+                'email': r.recipient_address.get('email', '') if r.recipient_address else '',
+                'website': r.recipient_address.get('website', '') if r.recipient_address else '',
                 'delivery_status': r.delivery_status.value if r.delivery_status else None
             }
             for r in recipients

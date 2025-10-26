@@ -3,8 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { lettersAPI, repsAPI } from '../services/api';
 import useAuthStore from '../stores/authStore';
 
-export default function LetterWizard() {
+export default function LetterWizard({ onClose }) {
   const navigate = useNavigate();
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/letters');
+    }
+  };
   const { user } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -186,7 +194,7 @@ export default function LetterWizard() {
         const letterId = formData.generatedLetters[0].letter_id;
         await lettersAPI.finalizeLetter(letterId);
       }
-      navigate('/letters');
+      handleClose();
     } catch (err) {
       setError('Failed to save letters: ' + (err.response?.data?.detail || err.message));
     } finally {
@@ -249,33 +257,54 @@ export default function LetterWizard() {
     ];
 
     return (
-      <div className="flex items-center justify-between mb-8">
-        {steps.map((step, idx) => (
-          <div key={step.num} className="flex items-center flex-1">
-            <div className="flex flex-col items-center flex-1">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                  currentStep === step.num
-                    ? 'bg-blue-600 text-white'
-                    : currentStep > step.num
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-600'
-                }`}
-              >
-                {currentStep > step.num ? '✓' : step.num}
-              </div>
-              <span className="text-xs mt-1 text-gray-600">{step.label}</span>
-            </div>
-            {idx < steps.length - 1 && (
-              <div
-                className={`h-1 flex-1 mx-2 ${
-                  currentStep > step.num ? 'bg-green-500' : 'bg-gray-200'
-                }`}
-              />
-            )}
+      <>
+        {/* Mobile: Progress Bar */}
+        <div className="md:hidden mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">
+              Step {currentStep} of {steps.length}: {steps[currentStep - 1].label}
+            </span>
+            <span className="text-xs text-gray-500">
+              {Math.round((currentStep / steps.length) * 100)}%
+            </span>
           </div>
-        ))}
-      </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / steps.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Desktop: Numbered Steps */}
+        <div className="hidden md:flex items-center justify-between mb-8">
+          {steps.map((step, idx) => (
+            <div key={step.num} className="flex items-center flex-1 min-w-0">
+              <div className="flex flex-col items-center flex-1 min-w-0">
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm ${
+                    currentStep === step.num
+                      ? 'bg-blue-600 text-white'
+                      : currentStep > step.num
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {currentStep > step.num ? '✓' : step.num}
+                </div>
+                <span className="text-xs mt-1 text-gray-600 text-center">{step.label}</span>
+              </div>
+              {idx < steps.length - 1 && (
+                <div
+                  className={`h-1 flex-1 mx-2 ${
+                    currentStep > step.num ? 'bg-green-500' : 'bg-gray-200'
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </>
     );
   };
 
@@ -305,36 +334,47 @@ export default function LetterWizard() {
           </button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {voiceProfiles.map((profile) => (
             <label
               key={profile.id}
-              className={`block p-4 border rounded-lg cursor-pointer transition-colors ${
+              className={`block p-2 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
                 formData.voiceProfileId === profile.id
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
-              <div className="flex items-start">
+              <div className="flex items-start gap-1.5 sm:gap-3">
                 <input
                   type="radio"
                   name="voiceProfile"
                   value={profile.id}
                   checked={formData.voiceProfileId === profile.id}
                   onChange={(e) => updateField('voiceProfileId', e.target.value)}
-                  className="mt-1 mr-3"
+                  className="mt-0.5 sm:mt-1 flex-shrink-0"
                 />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900">{profile.name}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <span className="font-semibold text-gray-900 text-xs sm:text-base break-words leading-tight">{profile.name}</span>
                     {profile.is_default && (
-                      <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
+                      <span className="px-1.5 py-0.5 text-[10px] sm:text-xs bg-blue-100 text-blue-700 rounded flex-shrink-0">
                         Default
                       </span>
                     )}
                   </div>
                   {profile.description && (
-                    <p className="text-sm text-gray-600 mt-1">{profile.description}</p>
+                    <p
+                      className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: '1',
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {profile.description}
+                    </p>
                   )}
                 </div>
               </div>
@@ -731,13 +771,13 @@ export default function LetterWizard() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Write New Letter</h1>
-        <p className="text-gray-600 mt-2">Create advocacy letters to your representatives</p>
-      </div>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      <div className="bg-white rounded-lg p-6 max-w-5xl w-full my-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Write New Letter</h1>
+          <p className="text-gray-600 mt-2">Create advocacy letters to your representatives</p>
+        </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
         {renderStepIndicator()}
 
         {error && (
@@ -758,7 +798,7 @@ export default function LetterWizard() {
 
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
           <button
-            onClick={() => navigate('/letters')}
+            onClick={handleClose}
             className="px-4 py-2 text-gray-700 hover:text-gray-900"
           >
             Cancel

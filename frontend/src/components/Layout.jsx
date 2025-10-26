@@ -8,7 +8,6 @@ import {
   UserCircleIcon,
   PencilSquareIcon,
   DocumentTextIcon,
-  PaperAirplaneIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
@@ -112,16 +111,6 @@ export default function Layout() {
                     {item.label}
                   </Link>
                 ))}
-
-                {/* New Letter Button */}
-                <Link
-                  to="/letters/new"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors mt-4"
-                >
-                  <PaperAirplaneIcon className="h-5 w-5" />
-                  Write New Letter
-                </Link>
               </div>
             </nav>
           </aside>
@@ -156,15 +145,6 @@ export default function Layout() {
                   {item.label}
                 </Link>
               ))}
-
-              {/* New Letter Button */}
-              <Link
-                to="/letters/new"
-                className="flex items-center gap-3 px-4 py-3 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors mt-4"
-              >
-                <PaperAirplaneIcon className="h-5 w-5" />
-                Write New Letter
-              </Link>
             </div>
           </nav>
         </aside>

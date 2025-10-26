@@ -3,19 +3,11 @@ import {
   PencilSquareIcon,
   UsersIcon,
   DocumentTextIcon,
-  PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
 
 export default function DashboardPage() {
 
   const quickActions = [
-    {
-      title: 'Write New Letter',
-      description: 'Start a new letter to your representatives',
-      icon: PaperAirplaneIcon,
-      link: '/letters/new',
-      color: 'bg-green-500 hover:bg-green-600',
-    },
     {
       title: 'Find Representatives',
       description: 'Look up your state and federal representatives',

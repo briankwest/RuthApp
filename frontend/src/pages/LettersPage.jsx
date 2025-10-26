@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { lettersAPI } from '../services/api';
 import RichTextEditor from '../components/RichTextEditor';
 import Toast from '../components/Toast';
+import LetterWizard from '../components/LetterWizard';
 
 export default function LettersPage() {
+  const navigate = useNavigate();
   const [letters, setLetters] = useState([]);
   const [filteredLetters, setFilteredLetters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +15,7 @@ export default function LettersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRepFilter, setSelectedRepFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('draft'); // 'draft' or 'finalized'
+  const [showWizard, setShowWizard] = useState(false);
 
   // Edit recipient modal
   const [showEditModal, setShowEditModal] = useState(false);
@@ -302,12 +305,12 @@ export default function LettersPage() {
           <h1 className="text-3xl font-bold text-gray-900">My Letters</h1>
           <p className="mt-2 text-gray-600">View and manage all your advocacy letters</p>
         </div>
-        <Link
-          to="/letters/new"
+        <button
+          onClick={() => setShowWizard(true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium w-full sm:w-auto text-center"
         >
           Write New Letter
-        </Link>
+        </button>
       </div>
 
       {error && (
@@ -406,12 +409,12 @@ export default function LettersPage() {
             <p className="mt-2 text-sm text-gray-600">
               Get started by writing your first advocacy letter to your representatives.
             </p>
-            <Link
-              to="/letters/new"
-              className="mt-6 inline-block px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+            <button
+              onClick={() => setShowWizard(true)}
+              className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
             >
               Write Your First Letter
-            </Link>
+            </button>
           </div>
         </div>
       ) : filteredLetters.length === 0 ? (
@@ -694,6 +697,16 @@ export default function LettersPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Letter Wizard Modal */}
+      {showWizard && (
+        <LetterWizard
+          onClose={() => {
+            setShowWizard(false);
+            loadLetters();
+          }}
+        />
       )}
     </div>
   );

@@ -9,7 +9,6 @@ import DashboardPage from './pages/DashboardPage';
 import RepresentativesPage from './pages/RepresentativesPage';
 import ProfilePage from './pages/ProfilePage';
 import WritingProfilesPage from './pages/WritingProfilesPage';
-import NewLetterPage from './pages/NewLetterPage';
 import LettersPage from './pages/LettersPage';
 import LetterDetailPage from './pages/LetterDetailPage';
 import DeliveryPage from './pages/DeliveryPage';
@@ -49,7 +48,6 @@ function App() {
           <Route path="representatives" element={<RepresentativesPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="writing-profiles" element={<WritingProfilesPage />} />
-          <Route path="letters/new" element={<NewLetterPage />} />
           <Route path="letters" element={<LettersPage />} />
           <Route path="letters/:id" element={<LetterDetailPage />} />
           <Route path="letters/:id/delivery" element={<DeliveryPage />} />
