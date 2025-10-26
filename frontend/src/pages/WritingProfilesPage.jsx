@@ -3,6 +3,7 @@ import { lettersAPI } from '../services/api';
 import useAuthStore from '../stores/authStore';
 import WritingProfileWizard from '../components/WritingProfileWizard';
 import WritingProfileDetailsModal from '../components/WritingProfileDetailsModal';
+import Toast from '../components/Toast';
 
 export default function WritingProfilesPage() {
   const { user } = useAuthStore();
@@ -91,6 +92,9 @@ export default function WritingProfilesPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
+      {success && <Toast message={success} type="success" onClose={() => setSuccess('')} />}
+      {error && <Toast message={error} type="error" onClose={() => setError('')} />}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Writing Profiles</h1>
@@ -105,18 +109,6 @@ export default function WritingProfilesPage() {
           Create New Profile
         </button>
       </div>
-
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
-      )}
-
-      {success && (
-        <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-sm text-green-600">{success}</p>
-        </div>
-      )}
 
       {profiles.length === 0 ? (
         <div className="bg-white shadow-sm rounded-lg p-12 text-center">

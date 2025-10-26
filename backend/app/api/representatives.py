@@ -13,6 +13,7 @@ from app.services.geocodio import GeocodioService
 from app.api.dependencies import get_current_active_user
 from app.models.user import User, UserAddress
 from app.models.geocoding import Representative
+from app.utils.google_address import parse_office_address_with_google
 from sqlalchemy import select, and_, delete, update
 
 
@@ -99,6 +100,33 @@ async def lookup_representatives_by_address(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=result["error"]
         )
+
+    # Clean all office addresses using Google Address Validation API
+    if 'representatives' in result:
+        for level in ['federal', 'state']:
+            if level in result['representatives']:
+                for role in ['senators', 'representatives']:
+                    if role in result['representatives'][level]:
+                        for rep in result['representatives'][level][role]:
+                            if 'offices' in rep and rep['offices']:
+                                cleaned_offices = []
+                                for office in rep['offices']:
+                                    # Parse address using Google API
+                                    parsed = await parse_office_address_with_google(
+                                        street_1=office.get('street_1', ''),
+                                        city=office.get('city', ''),
+                                        state=office.get('state', ''),
+                                        zip_code=office.get('zip', '')
+                                    )
+                                    # Update office with parsed values
+                                    cleaned_office = office.copy()
+                                    cleaned_office['street_1'] = parsed['street_1']
+                                    cleaned_office['street_2'] = parsed['street_2']
+                                    cleaned_office['city'] = parsed['city']
+                                    cleaned_office['state'] = parsed['state']
+                                    cleaned_office['zip'] = parsed['zip']
+                                    cleaned_offices.append(cleaned_office)
+                                rep['offices'] = cleaned_offices
 
     # Save address if requested
     if address_data.save_as_primary:

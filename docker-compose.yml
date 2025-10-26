@@ -56,7 +56,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/1
       - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - APP_VERSION=1.0.2
+      - APP_VERSION=1.0.3
     env_file:
       - ./backend/.env
     depends_on:
@@ -123,7 +123,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_APP_VERSION: "1.0.2"
+        VITE_APP_VERSION: "1.0.3"
     container_name: ruth_frontend
     ports:
       - "3000:80"
