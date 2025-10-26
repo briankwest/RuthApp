@@ -4,6 +4,7 @@ import { lettersAPI } from '../services/api';
 import RichTextEditor from '../components/RichTextEditor';
 import Toast from '../components/Toast';
 import LetterWizard from '../components/LetterWizard';
+import useAuthStore from '../stores/authStore';
 
 export default function LettersPage() {
   const navigate = useNavigate();
@@ -30,6 +31,17 @@ export default function LettersPage() {
     letterId: null,
     recipientId: null,
     recipientName: '',
+    include_email: false,
+    include_phone: false
+  });
+
+  // Email options modal
+  const [showEmailOptionsModal, setShowEmailOptionsModal] = useState(false);
+  const [emailOptions, setEmailOptions] = useState({
+    recipientEmail: '',
+    recipientName: '',
+    subject: '',
+    content: '',
     include_email: false,
     include_phone: false
   });
@@ -166,6 +178,51 @@ export default function LettersPage() {
       setError(`Failed to ${actionText} PDF for ${pdfOptions.recipientName}: ${err.response?.data?.detail || err.message}`);
       setTimeout(() => setError(''), 3000);
       setShowPdfOptionsModal(false);
+    }
+  };
+
+  const handleEmailLetter = (recipientEmail, recipientName, subject, content) => {
+    // Show modal to collect email options
+    setEmailOptions({
+      recipientEmail,
+      recipientName,
+      subject,
+      content,
+      include_email: false,
+      include_phone: false
+    });
+    setShowEmailOptionsModal(true);
+  };
+
+  const confirmSendEmail = () => {
+    try {
+      const { recipientEmail, subject, content, include_email, include_phone } = emailOptions;
+      const { user } = useAuthStore.getState();
+
+      // Build signature
+      let signature = `\n\nSincerely,\n${user.first_name} ${user.last_name}`;
+
+      if (include_email && user.email) {
+        signature += `\n${user.email}`;
+      }
+
+      if (include_phone && user.phone_number) {
+        signature += `\n${user.phone_number}`;
+      }
+
+      // Build mailto link with signature
+      const emailBody = content + signature;
+      const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+
+      // Open email client
+      window.location.href = mailtoLink;
+
+      // Close modal
+      setShowEmailOptionsModal(false);
+    } catch (err) {
+      setError(`Failed to open email client: ${err.message}`);
+      setTimeout(() => setError(''), 3000);
+      setShowEmailOptionsModal(false);
     }
   };
 
@@ -533,12 +590,12 @@ export default function LettersPage() {
                                 📝 Edit
                               </button>
                               {recipient.email && (
-                                <a
-                                  href={`mailto:${recipient.email}?subject=${encodeURIComponent(recipient.subject || letter.subject)}&body=${encodeURIComponent(recipient.content || '')}`}
-                                  className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium text-center"
+                                <button
+                                  onClick={() => handleEmailLetter(recipient.email, recipient.name, recipient.subject || letter.subject, recipient.content || '')}
+                                  className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
                                 >
                                   ✉️ Email
-                                </a>
+                                </button>
                               )}
                               <button
                                 onClick={() => handleCopyLetter(recipient)}
@@ -662,6 +719,61 @@ export default function LettersPage() {
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 Generate PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email Options Modal */}
+      {showEmailOptionsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Email Options
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Sending email to: <span className="font-semibold">{emailOptions.recipientName}</span>
+            </p>
+
+            <div className="space-y-3 mb-6">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={emailOptions.include_email}
+                  onChange={(e) => setEmailOptions(prev => ({ ...prev, include_email: e.target.checked }))}
+                  className="rounded"
+                />
+                <span className="text-sm text-gray-700">
+                  Include my email address in signature
+                </span>
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={emailOptions.include_phone}
+                  onChange={(e) => setEmailOptions(prev => ({ ...prev, include_phone: e.target.checked }))}
+                  className="rounded"
+                />
+                <span className="text-sm text-gray-700">
+                  Include my phone number in signature
+                </span>
+              </label>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowEmailOptionsModal(false)}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmSendEmail}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Open Email Client
               </button>
             </div>
           </div>

@@ -15,8 +15,8 @@ RUN npm install
 COPY . .
 
 # Accept build argument for version
-ARG APP_VERSION=1.0.0
-ENV VITE_APP_VERSION=$APP_VERSION
+ARG VITE_APP_VERSION=unknown
+ENV VITE_APP_VERSION=$VITE_APP_VERSION
 
 # Build the application
 RUN npm run build
