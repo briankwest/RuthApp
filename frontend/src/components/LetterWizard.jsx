@@ -185,21 +185,9 @@ export default function LetterWizard({ onClose }) {
   };
 
   const saveLetters = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      // Get the letter_id from the first generated letter (they all share the same letter)
-      if (formData.generatedLetters.length > 0) {
-        const letterId = formData.generatedLetters[0].letter_id;
-        await lettersAPI.finalizeLetter(letterId);
-      }
-      handleClose();
-    } catch (err) {
-      setError('Failed to save letters: ' + (err.response?.data?.detail || err.message));
-    } finally {
-      setLoading(false);
-    }
+    // Letters are already saved as drafts when generated
+    // User can mark them as sent later from the Letters page
+    handleClose();
   };
 
   const nextStep = () => {

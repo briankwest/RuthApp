@@ -1782,44 +1782,6 @@ async def get_letter(
     )
 
 
-@router.put("/{letter_id}/finalize")
-async def finalize_letter(
-    letter_id: str,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
-    """Finalize a letter for sending"""
-    result = await db.execute(
-        select(Letter).where(
-            and_(
-                Letter.id == uuid.UUID(letter_id),
-                Letter.user_id == current_user.id
-            )
-        )
-    )
-    letter = result.scalar_one_or_none()
-
-    if not letter:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Letter not found"
-        )
-
-    if letter.status != LetterStatus.DRAFT:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only draft letters can be finalized"
-        )
-
-    letter.status = LetterStatus.FINALIZED
-    letter.finalized_at = datetime.utcnow()
-    letter.updated_at = datetime.utcnow()
-
-    await db.commit()
-
-    return {"message": "Letter finalized successfully"}
-
-
 @router.patch("/{letter_id}/status")
 async def update_letter_status(
     letter_id: str,
