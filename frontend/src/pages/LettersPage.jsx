@@ -56,6 +56,9 @@ export default function LettersPage() {
   // Toggle letter status
   const [togglingStatus, setTogglingStatus] = useState(null);
 
+  // Delete confirmation
+  const [confirmDeleteLetter, setConfirmDeleteLetter] = useState(null);
+
   useEffect(() => {
     loadLetters();
   }, []);
@@ -236,16 +239,21 @@ export default function LettersPage() {
     document.body.removeChild(element);
   };
 
-  const handleDelete = async (letterId) => {
-    if (!window.confirm('Are you sure you want to delete this letter?')) {
-      return;
-    }
+  const handleDelete = (letterId) => {
+    setConfirmDeleteLetter(letterId);
+  };
 
+  const confirmDeleteAction = async () => {
     try {
-      await lettersAPI.deleteLetter(letterId);
+      await lettersAPI.deleteLetter(confirmDeleteLetter);
+      setSuccess('Letter deleted successfully');
+      setTimeout(() => setSuccess(''), 3000);
       loadLetters();
     } catch (err) {
-      alert('Failed to delete letter: ' + (err.response?.data?.detail || err.message));
+      setError('Failed to delete letter: ' + (err.response?.data?.detail || err.message));
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setConfirmDeleteLetter(null);
     }
   };
 
@@ -805,6 +813,34 @@ export default function LettersPage() {
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 Open Website
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDeleteLetter && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Delete Letter?
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this letter? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDeleteLetter(null)}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteAction}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold"
+              >
+                Delete
               </button>
             </div>
           </div>

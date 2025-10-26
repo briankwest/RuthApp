@@ -16,6 +16,7 @@ export default function WritingProfilesPage() {
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [showEditWizard, setShowEditWizard] = useState(false);
   const [editingProfile, setEditingProfile] = useState(null);
+  const [confirmDeleteProfile, setConfirmDeleteProfile] = useState(null);
 
   useEffect(() => {
     loadProfiles();
@@ -34,19 +35,21 @@ export default function WritingProfilesPage() {
     }
   };
 
-  const handleDelete = async (profileId) => {
-    if (!window.confirm('Are you sure you want to delete this writing profile?')) {
-      return;
-    }
+  const handleDelete = (profileId) => {
+    setConfirmDeleteProfile(profileId);
+  };
 
+  const confirmDeleteAction = async () => {
     try {
-      await lettersAPI.deleteWritingProfile(profileId);
+      await lettersAPI.deleteWritingProfile(confirmDeleteProfile);
       setSuccess('Writing profile deleted successfully');
       setTimeout(() => setSuccess(''), 3000);
       loadProfiles();
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to delete profile');
       setTimeout(() => setError(''), 3000);
+    } finally {
+      setConfirmDeleteProfile(null);
     }
   };
 
@@ -263,6 +266,34 @@ export default function WritingProfilesPage() {
           }}
           onSuccess={handleEditSuccess}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDeleteProfile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Delete Writing Profile?
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this writing profile? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDeleteProfile(null)}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteAction}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
