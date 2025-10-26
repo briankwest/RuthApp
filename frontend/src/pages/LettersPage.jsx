@@ -59,6 +59,11 @@ export default function LettersPage() {
   // Delete confirmation
   const [confirmDeleteLetter, setConfirmDeleteLetter] = useState(null);
 
+  // PDF preview modal (for download)
+  const [showPdfPreviewModal, setShowPdfPreviewModal] = useState(false);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState('');
+  const [pdfPreviewFilename, setPdfPreviewFilename] = useState('');
+
   useEffect(() => {
     loadLetters();
   }, []);
@@ -133,7 +138,7 @@ export default function LettersPage() {
 
   const confirmGeneratePDF = async () => {
     try {
-      const { action, letterId, recipientId, recipientName, include_email, include_phone } = pdfOptions;
+      const { letterId, recipientId, recipientName, include_email, include_phone } = pdfOptions;
 
       const response = await lettersAPI.generatePDF(letterId, recipientId, {
         include_email,
@@ -148,39 +153,79 @@ export default function LettersPage() {
       // Add timestamp to prevent caching
       const downloadUrl = `/${pdfPath}?t=${Date.now()}`;
 
-      if (action === 'print') {
-        // Open PDF in new window and trigger print dialog
-        const printWindow = window.open(downloadUrl, '_blank');
-
-        if (printWindow) {
-          // Wait for PDF to load, then trigger print dialog
-          printWindow.onload = () => {
-            setTimeout(() => {
-              printWindow.print();
-            }, 500);
-          };
-        } else {
-          setError('Please allow pop-ups to print letters');
-          setTimeout(() => setError(''), 3000);
-        }
-      } else {
-        // Download action
-        // Create a temporary link element and trigger download
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = filename || `letter-${recipientName.replace(/\s+/g, '-')}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      // Show PDF preview modal with download/share options
+      setPdfPreviewUrl(downloadUrl);
+      setPdfPreviewFilename(filename || `letter-${recipientName.replace(/\s+/g, '-')}.pdf`);
+      setShowPdfPreviewModal(true);
 
       // Close modal
       setShowPdfOptionsModal(false);
     } catch (err) {
-      const actionText = pdfOptions.action === 'print' ? 'print' : 'download';
-      setError(`Failed to ${actionText} PDF for ${pdfOptions.recipientName}: ${err.response?.data?.detail || err.message}`);
+      setError(`Failed to generate PDF for ${pdfOptions.recipientName}: ${err.response?.data?.detail || err.message}`);
       setTimeout(() => setError(''), 3000);
       setShowPdfOptionsModal(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      // On mobile/PWA, use Share API to avoid opening in browser
+      // Check if we're likely in a PWA or mobile browser
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                    window.navigator.standalone ||
+                    document.referrer.includes('android-app://');
+
+      if (isPWA || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Use Share API which works better in PWA
+        await handleSharePdf();
+      } else {
+        // Desktop browser - use traditional download
+        const response = await fetch(pdfPreviewUrl);
+        const blob = await response.blob();
+        const octetBlob = new Blob([blob], { type: 'application/octet-stream' });
+        const blobUrl = URL.createObjectURL(octetBlob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = pdfPreviewFilename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+      setError('Failed to download PDF. Try using the Share button.');
+      setTimeout(() => setError(''), 3000);
+    }
+  };
+
+  const handleSharePdf = async () => {
+    try {
+      // Check if Web Share API is available
+      if (navigator.share) {
+        // Fetch the PDF as a blob
+        const response = await fetch(pdfPreviewUrl);
+        const blob = await response.blob();
+        const file = new File([blob], pdfPreviewFilename, { type: 'application/pdf' });
+
+        await navigator.share({
+          title: 'Letter PDF',
+          text: 'Sharing letter PDF',
+          files: [file]
+        });
+      } else {
+        // Fallback: just download
+        handleDownloadPdf();
+      }
+    } catch (err) {
+      // User cancelled or error occurred
+      if (err.name !== 'AbortError') {
+        console.error('Error sharing:', err);
+        setError('Failed to share PDF. Try downloading instead.');
+        setTimeout(() => setError(''), 3000);
+      }
     }
   };
 
@@ -337,19 +382,6 @@ export default function LettersPage() {
       window.open(websitePromptData.website, '_blank');
     }
     setShowWebsitePrompt(false);
-  };
-
-  const handlePrintLetter = (letterId, recipientId, recipientName) => {
-    // Show modal to collect PDF options for printing
-    setPdfOptions({
-      action: 'print',
-      letterId,
-      recipientId,
-      recipientName,
-      include_email: false,
-      include_phone: false
-    });
-    setShowPdfOptionsModal(true);
   };
 
   if (loading) {
@@ -612,12 +644,6 @@ export default function LettersPage() {
                                 📋 Copy
                               </button>
                               <button
-                                onClick={() => handlePrintLetter(letter.id, recipient.id, recipient.name)}
-                                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
-                              >
-                                🖨️ Print
-                              </button>
-                              <button
                                 onClick={() => handleDownloadPDF(letter.id, recipient.id, recipient.name)}
                                 className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
                               >
@@ -842,6 +868,98 @@ export default function LettersPage() {
               >
                 Delete
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PDF Preview Modal (for download/share) */}
+      {showPdfPreviewModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Letter PDF
+              </h2>
+              <div className="flex gap-2">
+                {(() => {
+                  const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                                window.navigator.standalone ||
+                                document.referrer.includes('android-app://');
+                  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                  // Show Share on mobile/PWA, Download on desktop
+                  if ((isPWA || isMobile) && navigator.share) {
+                    return (
+                      <button
+                        onClick={handleSharePdf}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium flex items-center gap-2"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        Share
+                      </button>
+                    );
+                  } else {
+                    return (
+                      <button
+                        onClick={async () => {
+                          const response = await fetch(pdfPreviewUrl);
+                          const blob = await response.blob();
+                          const octetBlob = new Blob([blob], { type: 'application/octet-stream' });
+                          const blobUrl = URL.createObjectURL(octetBlob);
+                          const link = document.createElement('a');
+                          link.href = blobUrl;
+                          link.download = pdfPreviewFilename;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                        }}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium flex items-center gap-2"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download
+                      </button>
+                    );
+                  }
+                })()}
+                <button
+                  onClick={() => {
+                    setShowPdfPreviewModal(false);
+                    setPdfPreviewUrl('');
+                    setPdfPreviewFilename('');
+                  }}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 bg-gray-100 dark:bg-gray-900">
+              <object
+                data={pdfPreviewUrl}
+                type="application/pdf"
+                className="w-full h-full"
+                style={{ minHeight: '70vh' }}
+              >
+                <div className="flex items-center justify-center h-full p-8">
+                  <div className="text-center">
+                    <p className="text-gray-700 dark:text-gray-300 mb-4">
+                      PDF preview is not available in your browser.
+                    </p>
+                    <button
+                      onClick={handleSharePdf}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+                    >
+                      Share PDF
+                    </button>
+                  </div>
+                </div>
+              </object>
             </div>
           </div>
         </div>
