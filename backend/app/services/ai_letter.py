@@ -207,19 +207,19 @@ class NewsArticleFetcher:
         await self.client.aclose()
 
 
-class VoiceAnalyzer:
-    """Analyzes user writing samples to create a voice profile"""
+class WritingAnalyzer:
+    """Analyzes user writing samples to create a writing profile"""
 
     def __init__(self):
         self.client = AsyncOpenAI(api_key=settings.openai_api_key)
         self.model = settings.openai_model
 
     async def analyze_writing_samples(self, samples: List[str]) -> Dict[str, Any]:
-        """Analyze writing samples to extract voice characteristics"""
+        """Analyze writing samples to extract writing characteristics"""
         try:
             combined_samples = "\n\n---\n\n".join(samples[:5])  # Limit to 5 samples
 
-            prompt = """Analyze these writing samples and extract the author's voice characteristics:
+            prompt = """Analyze these writing samples and extract the author's writing characteristics:
 
 Writing Samples:
 {samples}
@@ -260,13 +260,13 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
                 "vocabulary_level": "standard",
                 "signature_phrases": [],
                 "key_themes": [],
-                "personality_description": "Standard professional voice"
+                "personality_description": "Standard professional style"
             }
 
-    async def generate_voice_prompt(self,
+    async def generate_writing_prompt(self,
                                    writing_profile: UserWritingProfile,
                                    analysis: Optional[Dict] = None) -> str:
-        """Generate a comprehensive system prompt for AI based on voice profile"""
+        """Generate a comprehensive system prompt for AI based on writing profile"""
 
         # If no analysis provided, use stored attributes
         if not analysis:
@@ -275,7 +275,7 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
                 "style_attributes": writing_profile.style_attributes or {"balanced": 0.8},
                 "vocabulary_level": writing_profile.vocabulary_level or "standard",
                 "signature_phrases": writing_profile.signature_phrases or [],
-                "personality_description": writing_profile.description or "Professional voice"
+                "personality_description": writing_profile.description or "Professional style"
             }
 
         # Convert tone and style attributes to strings (handle both dict and legacy list format)
@@ -293,9 +293,9 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
             # Legacy list format
             style_str = ', '.join(style_attrs) if style_attrs else 'balanced'
 
-        # Build the comprehensive voice prompt
+        # Build the comprehensive writing style prompt
         prompt_parts = [
-            f"You are writing as {writing_profile.name}, with the following comprehensive voice profile:",
+            f"You are writing as {writing_profile.name}, with the following comprehensive writing profile:",
             f"\n=== PERSONALITY & STYLE ===",
             f"Description: {analysis.get('personality_description', writing_profile.description)}",
             f"Tone: {tone_str}",
@@ -305,8 +305,8 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
 
         # Writing samples - provide actual examples of the user's writing
         if writing_profile.writing_samples and len(writing_profile.writing_samples) > 0:
-            prompt_parts.append(f"\n=== WRITING SAMPLES (Your Voice Examples) ===")
-            prompt_parts.append("Study these examples of your past writing to match the voice, tone, and style:")
+            prompt_parts.append(f"\n=== WRITING SAMPLES (Your Writing Examples) ===")
+            prompt_parts.append("Study these examples of your past writing to match the tone, style, and patterns:")
             for idx, sample in enumerate(writing_profile.writing_samples[:3], 1):  # Limit to first 3 to avoid token overload
                 # Truncate very long samples
                 truncated_sample = sample[:500] + "..." if len(sample) > 500 else sample
@@ -451,7 +451,7 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
 
         # Final instructions
         prompt_parts.append(f"\n=== WRITING GUIDELINES ===")
-        prompt_parts.append("- Maintain this voice consistently throughout the letter")
+        prompt_parts.append("- Maintain this writing style consistently throughout the letter")
         prompt_parts.append("- Be respectful and professional, even when disagreeing")
         prompt_parts.append("- Make your arguments persuasive and evidence-based")
         prompt_parts.append("- Tailor your message to the specific representative's role and jurisdiction")
@@ -461,7 +461,7 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
     async def create_writing_profile_interactive(self,
                                               user_id: str,
                                               db: AsyncSession) -> UserWritingProfile:
-        """Interactive process to create a voice profile with AI assistance"""
+        """Interactive process to create a writing profile with AI assistance"""
         try:
             # This would be called from an API endpoint with user input
             # For now, return a placeholder
@@ -482,13 +482,13 @@ Format as JSON with keys: tone_attributes, style_attributes, vocabulary_level, s
             return profile
 
         except Exception as e:
-            logger.error(f"Error creating voice profile: {e}")
+            logger.error(f"Error creating writing profile: {e}")
             await db.rollback()
             raise
 
 
 class AILetterDrafter:
-    """Uses OpenAI to draft letters based on news context and user voice"""
+    """Uses OpenAI to draft letters based on news context and user writing style"""
 
     def __init__(self):
         self.client = AsyncOpenAI(api_key=settings.openai_api_key)
@@ -544,7 +544,7 @@ Please provide:
                           focus: Optional[str] = None,
                           additional_context: Optional[str] = None,
                           writing_profile: Optional[UserWritingProfile] = None) -> Tuple[str, str]:
-        """Draft a letter to an official based on news articles and user voice"""
+        """Draft a letter to an official based on news articles and user writing style"""
         try:
             # First, analyze the articles
             analysis = await self.analyze_articles(articles)
@@ -572,9 +572,9 @@ Additional Context: {additional_context or 'None provided'}
 
             # Get the appropriate system prompt
             if writing_profile:
-                # Generate comprehensive voice prompt using all profile data
-                voice_analyzer = VoiceAnalyzer()
-                system_prompt = await voice_analyzer.generate_voice_prompt(writing_profile)
+                # Generate comprehensive writing prompt using all profile data
+                writing_analyzer = WritingAnalyzer()
+                system_prompt = await writing_analyzer.generate_writing_prompt(writing_profile)
 
                 # Add constituent communications expertise
                 system_prompt = f"""You are an expert constituent communications specialist who helps citizens write effective letters to their representatives.
@@ -730,15 +730,15 @@ Sincerely,
         try:
             # Get the appropriate system prompt
             if writing_profile:
-                # Generate comprehensive voice prompt using all profile data
-                voice_analyzer = VoiceAnalyzer()
-                voice_prompt = await voice_analyzer.generate_voice_prompt(writing_profile)
+                # Generate comprehensive writing prompt using all profile data
+                writing_analyzer = WritingAnalyzer()
+                writing_prompt = await writing_analyzer.generate_writing_prompt(writing_profile)
 
                 system_prompt = f"""You are an expert letter editor.
 
-{voice_prompt}
+{writing_prompt}
 
-When editing, maintain all the voice characteristics and values above while incorporating the user's feedback."""
+When editing, maintain all the writing characteristics and values above while incorporating the user's feedback."""
             else:
                 system_prompt = "You are an expert letter editor."
 
@@ -811,15 +811,15 @@ Please provide the revised letter maintaining the same general structure but inc
 
             # Get the appropriate system prompt
             if writing_profile:
-                # Generate comprehensive voice prompt using all profile data
-                voice_analyzer = VoiceAnalyzer()
-                voice_prompt = await voice_analyzer.generate_voice_prompt(writing_profile)
+                # Generate comprehensive writing prompt using all profile data
+                writing_analyzer = WritingAnalyzer()
+                writing_prompt = await writing_analyzer.generate_writing_prompt(writing_profile)
 
                 system_prompt = f"""You are an expert at personalizing letters for different officials.
 
-{voice_prompt}
+{writing_prompt}
 
-When personalizing, maintain all the voice characteristics and values above while adapting the specific arguments and framing for this particular representative."""
+When personalizing, maintain all the writing characteristics and values above while adapting the specific arguments and framing for this particular representative."""
             else:
                 system_prompt = "You are an expert at personalizing letters for different officials."
 

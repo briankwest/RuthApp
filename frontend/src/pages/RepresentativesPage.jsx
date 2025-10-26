@@ -61,7 +61,7 @@ function RepresentativeCard({ rep, onSave }) {
               disabled={saving}
               className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 whitespace-nowrap flex-shrink-0"
             >
-              {saving ? 'Saving...' : 'Save'}
+              {saving ? 'Saving' : 'Save'}
             </button>
           </div>
         </div>

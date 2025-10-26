@@ -7,7 +7,7 @@ React frontend for the Ruth civic engagement platform.
 - **Authentication**: Login and registration with JWT tokens
 - **Dashboard**: Quick access to all features
 - **Representative Lookup**: Find representatives by address using Geocod.io
-- **Voice Profiles**: Manage personalized writing styles
+- **Writing Profiles**: Manage personalized writing styles
 - **Letter Writing**: AI-powered letter generation
 - **Delivery Management**: Send letters via fax, email, or print
 
@@ -73,7 +73,7 @@ frontend/
 │   │   ├── RegisterPage.jsx
 │   │   ├── DashboardPage.jsx
 │   │   ├── RepresentativesPage.jsx
-│   │   ├── VoiceProfilesPage.jsx
+│   │   ├── WritingProfilesPage.jsx
 │   │   ├── NewLetterPage.jsx
 │   │   ├── LettersPage.jsx
 │   │   ├── LetterDetailPage.jsx

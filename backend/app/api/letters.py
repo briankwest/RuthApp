@@ -21,7 +21,7 @@ from app.models.letter import (
 )
 from app.models.geocoding import Representative
 from app.services.ai_letter import (
-    NewsArticleFetcher, AILetterDrafter, VoiceAnalyzer,
+    NewsArticleFetcher, AILetterDrafter, WritingAnalyzer,
     detect_topic_category
 )
 from app.services.pdf_generator import PDFService
@@ -56,7 +56,7 @@ def convert_legacy_attributes(attributes: Any) -> Dict[str, float]:
 
 # ==================== Request/Response Models ====================
 
-class VoiceProfileCreate(BaseModel):
+class WritingProfileCreate(BaseModel):
     """Request model for creating a writing profile"""
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
@@ -83,7 +83,7 @@ class VoiceProfileCreate(BaseModel):
     compromise_positioning: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
 
-class VoiceProfileUpdate(BaseModel):
+class WritingProfileUpdate(BaseModel):
     """Request model for updating a writing profile"""
     name: Optional[str] = None
     description: Optional[str] = None
@@ -110,7 +110,7 @@ class VoiceProfileUpdate(BaseModel):
     compromise_positioning: Optional[Dict[str, Any]] = None
 
 
-class VoiceProfileResponse(BaseModel):
+class WritingProfileResponse(BaseModel):
     """Response model for writing profile"""
     id: str
     name: str
@@ -143,7 +143,7 @@ class VoiceProfileResponse(BaseModel):
     compromise_positioning: Optional[Dict[str, Any]] = None
 
 
-class AnalyzeVoiceRequest(BaseModel):
+class AnalyzeWritingRequest(BaseModel):
     """Request to analyze writing samples"""
     writing_samples: List[str] = Field(..., min_items=1, max_items=10)
 
@@ -233,9 +233,9 @@ class GenerateFocusOptionsRequest(BaseModel):
 
 # ==================== Writing Profile Endpoints ====================
 
-@router.post("/writing-profiles", response_model=VoiceProfileResponse)
+@router.post("/writing-profiles", response_model=WritingProfileResponse)
 async def create_writing_profile(
-    profile_data: VoiceProfileCreate,
+    profile_data: WritingProfileCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -256,12 +256,12 @@ async def create_writing_profile(
                 profile.is_default = False
 
         # Analyze writing samples if provided
-        voice_analyzer = VoiceAnalyzer()
+        writing_analyzer = WritingAnalyzer()
         analysis = {}
         ai_prompt = None
 
         if profile_data.writing_samples:
-            analysis = await voice_analyzer.analyze_writing_samples(profile_data.writing_samples)
+            analysis = await writing_analyzer.analyze_writing_samples(profile_data.writing_samples)
 
         # Create the profile
         profile = UserWritingProfile(
@@ -297,13 +297,13 @@ async def create_writing_profile(
 
         # Generate AI system prompt
         if analysis:
-            profile.ai_system_prompt = await voice_analyzer.generate_voice_prompt(profile, analysis)
+            profile.ai_system_prompt = await writing_analyzer.generate_writing_prompt(profile, analysis)
 
         db.add(profile)
         await db.commit()
         await db.refresh(profile)
 
-        return VoiceProfileResponse(
+        return WritingProfileResponse(
             id=str(profile.id),
             name=profile.name,
             description=profile.description,
@@ -342,7 +342,7 @@ async def create_writing_profile(
         )
 
 
-@router.get("/writing-profiles", response_model=List[VoiceProfileResponse])
+@router.get("/writing-profiles", response_model=List[WritingProfileResponse])
 async def list_writing_profiles(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
@@ -356,7 +356,7 @@ async def list_writing_profiles(
     profiles = result.scalars().all()
 
     return [
-        VoiceProfileResponse(
+        WritingProfileResponse(
             id=str(profile.id),
             name=profile.name,
             description=profile.description,
@@ -390,7 +390,7 @@ async def list_writing_profiles(
     ]
 
 
-@router.get("/writing-profiles/{profile_id}", response_model=VoiceProfileResponse)
+@router.get("/writing-profiles/{profile_id}", response_model=WritingProfileResponse)
 async def get_writing_profile(
     profile_id: str,
     current_user: User = Depends(get_current_user),
@@ -413,7 +413,7 @@ async def get_writing_profile(
             detail="Writing profile not found"
         )
 
-    return VoiceProfileResponse(
+    return WritingProfileResponse(
         id=str(profile.id),
         name=profile.name,
         description=profile.description,
@@ -445,10 +445,10 @@ async def get_writing_profile(
     )
 
 
-@router.put("/writing-profiles/{profile_id}", response_model=VoiceProfileResponse)
+@router.put("/writing-profiles/{profile_id}", response_model=WritingProfileResponse)
 async def update_writing_profile(
     profile_id: str,
-    profile_data: VoiceProfileUpdate,
+    profile_data: WritingProfileUpdate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -489,13 +489,13 @@ async def update_writing_profile(
 
     # Re-analyze if new writing samples provided
     if update_data.get('writing_samples'):
-        voice_analyzer = VoiceAnalyzer()
-        analysis = await voice_analyzer.analyze_writing_samples(update_data['writing_samples'])
+        writing_analyzer = WritingAnalyzer()
+        analysis = await writing_analyzer.analyze_writing_samples(update_data['writing_samples'])
         profile.tone_attributes = analysis.get('tone_attributes', {})
         profile.style_attributes = analysis.get('style_attributes', {})
         profile.vocabulary_level = analysis.get('vocabulary_level', 'standard')
         profile.signature_phrases = analysis.get('signature_phrases', [])
-        profile.ai_system_prompt = await voice_analyzer.generate_voice_prompt(profile, analysis)
+        profile.ai_system_prompt = await writing_analyzer.generate_writing_prompt(profile, analysis)
 
     # Apply updates
     for field, value in update_data.items():
@@ -507,7 +507,7 @@ async def update_writing_profile(
     await db.commit()
     await db.refresh(profile)
 
-    return VoiceProfileResponse(
+    return WritingProfileResponse(
         id=str(profile.id),
         name=profile.name,
         description=profile.description,
@@ -569,14 +569,14 @@ async def delete_writing_profile(
 
 
 @router.post("/writing-profiles/analyze")
-async def analyze_voice(
-    request: AnalyzeVoiceRequest,
+async def analyze_writing(
+    request: AnalyzeWritingRequest,
     current_user: User = Depends(get_current_user)
 ):
-    """Analyze writing samples to extract voice characteristics"""
+    """Analyze writing samples to extract writing characteristics"""
     try:
-        voice_analyzer = VoiceAnalyzer()
-        analysis = await voice_analyzer.analyze_writing_samples(request.writing_samples)
+        writing_analyzer = WritingAnalyzer()
+        analysis = await writing_analyzer.analyze_writing_samples(request.writing_samples)
 
         return {
             "analysis": analysis,
@@ -780,9 +780,9 @@ async def preview_writing_profile(
                 detail="Writing profile not found"
             )
 
-        # Generate voice prompt
-        voice_analyzer = VoiceAnalyzer()
-        voice_prompt = await voice_analyzer.generate_voice_prompt(profile)
+        # Generate writing prompt
+        writing_analyzer = WritingAnalyzer()
+        writing_prompt = await writing_analyzer.generate_writing_prompt(profile)
 
         # Generate sample letter excerpt
         from openai import AsyncOpenAI
@@ -793,7 +793,7 @@ async def preview_writing_profile(
         response = await client.chat.completions.create(
             model=settings.openai_model,
             messages=[
-                {"role": "system", "content": voice_prompt},
+                {"role": "system", "content": writing_prompt},
                 {"role": "user", "content": f"Write a brief opening paragraph for a letter to a representative about {sample_topic}. Keep it to 3-4 sentences."}
             ],
             temperature=0.8,
@@ -805,7 +805,7 @@ async def preview_writing_profile(
         return {
             "sample_text": sample_text,
             "topic": sample_topic,
-            "voice_prompt": voice_prompt,
+            "writing_prompt": writing_prompt,
             "message": "Sample generated successfully"
         }
 

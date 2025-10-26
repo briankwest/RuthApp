@@ -38,7 +38,7 @@ class DeliveryStatus(str, Enum):
 
 
 class UserWritingProfile(Base):
-    """User's writing voice/style profile for personalized letter generation"""
+    """User's writing style profile for personalized letter generation"""
     __tablename__ = "user_writing_profiles"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -46,14 +46,14 @@ class UserWritingProfile(Base):
 
     # Profile identification
     name = Column(String(100), nullable=False)  # e.g., "Professional Advocate", "Concerned Citizen"
-    description = Column(Text, nullable=True)  # User's description of their voice
+    description = Column(Text, nullable=True)  # User's description of their writing style
     is_default = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
 
-    # AI-generated voice prompt based on user's examples and preferences
+    # AI-generated writing style prompt based on user's examples and preferences
     ai_system_prompt = Column(Text, nullable=True)
 
-    # Voice characteristics (analyzed from samples)
+    # Writing characteristics (analyzed from samples)
     tone_attributes = Column(JSON, default=dict)  # formal, casual, urgent, passionate
     style_attributes = Column(JSON, default=dict)  # direct, diplomatic, emotional, analytical
     vocabulary_level = Column(String(50), default="standard")  # simple, standard, advanced

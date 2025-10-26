@@ -19,12 +19,12 @@ export default function LetterWizard({ onClose }) {
   const [error, setError] = useState('');
 
   // Data state
-  const [voiceProfiles, setVoiceProfiles] = useState([]);
+  const [writingProfiles, setWritingProfiles] = useState([]);
   const [savedReps, setSavedReps] = useState([]);
 
   // Form state
   const [formData, setFormData] = useState({
-    voiceProfileId: '',
+    writingProfileId: '',
     recipientIds: [],
     articleUrls: [],
     suggestedTopics: [],
@@ -53,13 +53,13 @@ export default function LetterWizard({ onClose }) {
         repsAPI.getSavedRepresentatives()
       ]);
 
-      setVoiceProfiles(profilesRes.data || []);
+      setWritingProfiles(profilesRes.data || []);
       setSavedReps(repsRes.data.representatives || []);
 
       // Auto-select default writing profile
       const defaultProfile = profilesRes.data?.find(p => p.is_default);
       if (defaultProfile) {
-        updateField('voiceProfileId', defaultProfile.id);
+        updateField('writingProfileId', defaultProfile.id);
       }
     } catch (err) {
       setError('Failed to load data: ' + (err.response?.data?.detail || err.message));
@@ -154,7 +154,7 @@ export default function LetterWizard({ onClose }) {
 
     try {
       const response = await lettersAPI.generateLetter({
-        voice_profile_id: formData.voiceProfileId,
+        writing_profile_id: formData.writingProfileId,
         recipient_ids: formData.recipientIds,
         topic: finalTopic,
         article_urls: formData.articleUrls,
@@ -217,7 +217,7 @@ export default function LetterWizard({ onClose }) {
   const validateCurrentStep = () => {
     switch (currentStep) {
       case 1:
-        if (!formData.voiceProfileId) {
+        if (!formData.writingProfileId) {
           setError('Please select a writing profile');
           return false;
         }
@@ -247,7 +247,7 @@ export default function LetterWizard({ onClose }) {
 
   const renderStepIndicator = () => {
     const steps = [
-      { num: 1, label: 'Voice' },
+      { num: 1, label: 'Writing' },
       { num: 2, label: 'Recipients' },
       { num: 3, label: 'Context' },
       { num: 4, label: 'Topic' },
@@ -315,7 +315,7 @@ export default function LetterWizard({ onClose }) {
         <p className="text-gray-600">Choose the writing style for your letter.</p>
       </div>
 
-      {voiceProfiles.length === 0 ? (
+      {writingProfiles.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
           <div className="text-yellow-800 mb-4">
             <svg className="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -335,11 +335,11 @@ export default function LetterWizard({ onClose }) {
         </div>
       ) : (
         <div className="space-y-2 sm:space-y-3">
-          {voiceProfiles.map((profile) => (
+          {writingProfiles.map((profile) => (
             <label
               key={profile.id}
               className={`block p-2 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
-                formData.voiceProfileId === profile.id
+                formData.writingProfileId === profile.id
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
@@ -347,10 +347,10 @@ export default function LetterWizard({ onClose }) {
               <div className="flex items-start gap-1.5 sm:gap-3">
                 <input
                   type="radio"
-                  name="voiceProfile"
+                  name="writingProfile"
                   value={profile.id}
-                  checked={formData.voiceProfileId === profile.id}
-                  onChange={(e) => updateField('voiceProfileId', e.target.value)}
+                  checked={formData.writingProfileId === profile.id}
+                  onChange={(e) => updateField('writingProfileId', e.target.value)}
                   className="mt-0.5 sm:mt-1 flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
@@ -669,7 +669,7 @@ export default function LetterWizard({ onClose }) {
         <div>
           <h4 className="font-semibold text-gray-900">Writing Profile</h4>
           <p className="text-gray-700">
-            {voiceProfiles.find(p => p.id === formData.voiceProfileId)?.name}
+            {writingProfiles.find(p => p.id === formData.writingProfileId)?.name}
           </p>
         </div>
 
@@ -815,7 +815,7 @@ export default function LetterWizard({ onClose }) {
               </button>
             )}
 
-            {currentStep < 6 && voiceProfiles.length > 0 && savedReps.length > 0 && (
+            {currentStep < 6 && writingProfiles.length > 0 && savedReps.length > 0 && (
               <button
                 onClick={currentStep === 3 ? nextStep : nextStep}
                 disabled={loading || generatingLetters}

@@ -426,7 +426,7 @@ export default function WritingProfileWizard({ onClose, onSuccess, editMode = fa
           type="text"
           value={formData.name}
           onChange={(e) => updateField('name', e.target.value)}
-          placeholder="e.g., My Default Voice, Climate Advocate, etc."
+          placeholder="e.g., My Default Style, Climate Advocate, etc."
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
