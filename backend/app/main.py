@@ -14,6 +14,7 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 from app.core.config import settings, derived_settings
 from app.core.database import init_db, close_db
+from app.core.redis import init_redis, close_redis
 
 # Import API routers
 from app.api import auth, representatives, letters, delivery
@@ -55,7 +56,12 @@ async def lifespan(app: FastAPI):
         logger.error(f"Failed to initialize database: {e}")
         raise
 
-    # Initialize other services here (Redis, etc.)
+    # Initialize Redis
+    try:
+        await init_redis()
+        logger.info("Redis initialized successfully")
+    except Exception as e:
+        logger.warning(f"Redis initialization failed (non-critical): {e}")
 
     yield
 
@@ -65,7 +71,8 @@ async def lifespan(app: FastAPI):
     # Close database connections
     await close_db()
 
-    # Cleanup other resources here
+    # Close Redis connection
+    await close_redis()
 
     logger.info("Application shutdown complete")
 

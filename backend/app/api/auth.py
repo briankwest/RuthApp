@@ -1,8 +1,9 @@
 """
 Authentication API endpoints
 """
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.security import HTTPBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_async_session
@@ -26,6 +27,7 @@ from typing import Optional
 from app.services.auth import AuthService
 from app.api.dependencies import get_current_active_user
 from app.models.user import User
+from app.core.security import decode_token, blacklist_token
 
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -80,16 +82,33 @@ async def refresh_token(
 
 @router.post("/logout", response_model=MessageResponse)
 async def logout(
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """
     Logout current user
 
-    Note: Since we use stateless JWT, this endpoint is mainly
-    for client-side token removal. Consider implementing token
-    blacklisting for enhanced security.
+    Blacklists the current access token in Redis so it cannot be reused.
+    The token will remain blacklisted until its natural expiration.
     """
-    # TODO: Implement token blacklisting in Redis
+    # Get the token and decode it to extract JTI and expiration
+    token = credentials.credentials
+    payload = decode_token(token)
+
+    if payload:
+        jti = payload.get("jti")
+        exp = payload.get("exp")
+
+        if jti and exp:
+            # Calculate remaining time until token expiration
+            expires_at = datetime.fromtimestamp(exp)
+            now = datetime.utcnow()
+            remaining_seconds = int((expires_at - now).total_seconds())
+
+            # Only blacklist if token hasn't expired yet
+            if remaining_seconds > 0:
+                await blacklist_token(jti, remaining_seconds)
+
     return MessageResponse(
         message="Logged out successfully",
         success=True

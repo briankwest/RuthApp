@@ -2,12 +2,14 @@
 Security utilities for authentication and authorization
 """
 import secrets
+import uuid
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.core.config import settings
+from app.core.redis import get_redis
 
 
 # Password hashing
@@ -30,7 +32,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     """
-    Create a JWT access token
+    Create a JWT access token with unique JTI for blacklisting
     """
     to_encode = data.copy()
 
@@ -39,14 +41,16 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
 
-    to_encode.update({"exp": expire, "type": "access"})
+    # Add unique JWT ID for token blacklisting
+    jti = str(uuid.uuid4())
+    to_encode.update({"exp": expire, "type": "access", "jti": jti})
     encoded_jwt = jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
     return encoded_jwt
 
 
 def create_refresh_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
     """
-    Create a JWT refresh token
+    Create a JWT refresh token with unique JTI for blacklisting
     """
     to_encode = data.copy()
 
@@ -55,7 +59,9 @@ def create_refresh_token(data: Dict[str, Any], expires_delta: Optional[timedelta
     else:
         expire = datetime.utcnow() + timedelta(days=settings.refresh_token_expire_days)
 
-    to_encode.update({"exp": expire, "type": "refresh"})
+    # Add unique JWT ID for token blacklisting
+    jti = str(uuid.uuid4())
+    to_encode.update({"exp": expire, "type": "refresh", "jti": jti})
     encoded_jwt = jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
     return encoded_jwt
 
@@ -119,3 +125,26 @@ def validate_token_purpose(token_data: Dict[str, Any], expected_purpose: str) ->
     Validate that a token has the expected purpose
     """
     return token_data.get("purpose") == expected_purpose
+
+
+async def blacklist_token(jti: str, expires_in_seconds: int) -> None:
+    """
+    Add a token to the blacklist in Redis
+    The token will be automatically removed after expiration
+    """
+    redis = await get_redis()
+    if redis:
+        # Store the blacklisted JTI with the expiration time
+        await redis.setex(f"blacklist:{jti}", expires_in_seconds, "1")
+
+
+async def is_token_blacklisted(jti: str) -> bool:
+    """
+    Check if a token is blacklisted
+    """
+    redis = await get_redis()
+    if redis:
+        result = await redis.get(f"blacklist:{jti}")
+        return result is not None
+    # If Redis is unavailable, allow the request (fail open)
+    return False
