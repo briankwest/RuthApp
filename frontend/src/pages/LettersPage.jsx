@@ -247,19 +247,19 @@ export default function LettersPage() {
       const { recipientEmail, subject, content, include_email, include_phone } = emailOptions;
       const { user } = useAuthStore.getState();
 
-      // Build signature
-      let signature = `\n\nSincerely,\n${user.first_name} ${user.last_name}`;
+      // Build contact info to append (letter already has signature)
+      let contactInfo = '';
 
       if (include_email && user.email) {
-        signature += `\n${user.email}`;
+        contactInfo += `\n${user.email}`;
       }
 
       if (include_phone && user.phone) {
-        signature += `\n${user.phone}`;
+        contactInfo += `\n${user.phone}`;
       }
 
-      // Build mailto link with signature
-      const emailBody = content + signature;
+      // Build mailto link with contact info appended
+      const emailBody = content + contactInfo;
       const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
 
       // Open email client
